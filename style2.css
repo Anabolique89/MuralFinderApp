@@ -1,0 +1,221 @@
+
+@font-face {
+    font-family: 'Gotham Black';
+    src: url("./fonts/GOTHAM-BLACK.woff");
+
+  }body, h1, p, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+body, html{
+    width: 100%;
+    min-height: 100%;
+    overflow:hidden;
+    height: 100vh;
+  width: 100vw;
+}
+
+body {
+   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
+   display: flex;
+   background-color: #21D4FD;
+background-image: linear-gradient(19deg, #21D4FD 0%, #8921ff 33%, #3506a8 66%, #02f9f7 100%);
+   background-repeat: no-repeat;
+   background-size: cover;
+   align-items: center;
+   justify-content: center;
+   
+}
+
+/* 
+Background - gradient for - onboarding pages (find more accurate gradient)
+
+background-color: #4158D0;
+background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+*/
+/*
+.main{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40rem;
+    width: 30rem;
+    background: #E5F3FE;
+    box-shadow:  5px 5px 10px #cee3f2, 
+               -5px -5px 10px #faffff;
+    border-radius: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 4;
+}
+*/
+main{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+}
+
+
+.graphics{
+    position: relative;
+    z-index: 3;
+   
+}
+.graphics3{
+    margin-top: 3rem;
+    width: 5rem;
+    position: relative;
+    z-index: 3;
+}
+ .onboarding-page-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(30px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 25px;
+    z-index: 10;
+    position: absolute;
+ 
+}
+input{
+    font-size: 0.8rem;
+    font-family: 'Roboto';
+    font-weight: 300;
+}
+.logo-container img{
+width: 60px;
+padding: 0;
+margin: 0;
+}
+
+.input-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 1.7rem 0rem;
+  }
+
+.input-wrapper .input-label, .input-wrapper .input-text{
+  position: absolute;
+  width: 80%;
+}
+
+.input-wrapper .input-text{
+    padding: 0.6rem 1rem;
+    border-radius: 2rem;
+    box-shadow: inset 2px 2px 5px #BABECC, inset -5px -5px 10px #EEE;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    transition: all 0.2s ease;
+    background: #E5F3FE;
+  }
+  .input-wrapper .input-text:focus{
+    box-shadow: inset 2px 2px 1px #BABECC, inset -2px -2px 5px #EEE;
+  }
+  .input-wrapper .input-label{
+    left: 1rem;
+    text-shadow: 1px 1px 1px #FFF;
+    pointer-events:none;
+    transition: all 0.6s ease;
+  }
+  .input-text:valid ~ .input-label, .input-text:focus ~ .input-label{
+    font-size: 0.8rem;
+    transform: translate(-0.2rem, -1.96rem);
+    color: #AAA;
+  }
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+p {
+    margin-bottom: 20px;
+    font-family: 'Roboto';
+
+}
+.bottom-p-text{
+    margin-top: 10px;
+}
+.welcome-heading-small{
+    font-family: 'Gotham Black';
+    font-size: 2rem;
+}
+.roboto-uppercase-heading{
+    margin-top: 50px;
+    font-family: 'Roboto';
+    text-transform: uppercase;
+    font-weight: 300;
+    font-size: 1.3rem;
+}
+.welcome-text{
+    font-family: 'Roboto';
+    font-size: 1rem;
+}
+
+
+.btn {
+    font-family: 'Gotham Black';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+   cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #E5F3FE;
+    color: #000;
+}
+.signup-form{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+/* Responsive styles for screens smaller than 768px (e.g., mobile) */
+@media (max-width: 768px) {
+    .onboarding-page {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    p {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    ul {
+        margin-bottom: 15px;
+    }
+
+    li {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
