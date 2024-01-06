@@ -67,31 +67,33 @@ class addWallConfig
     {
         return $this->about;
     }
-    public funtion insertData(){
-        try{
-$stm = $this->dbCnx->prepare("INSERT INTO walls(name, status, address, about) values(?, ?, ?, ?)");
-$stm->execute([$this->name,$this->status,$this->address,$this->about]);
-echo "<script>alert('Data saved successfully');document.location='allData.php'</script>";
-        }
-        catch(Exception $e){
+    public function insertData()
+    {
+        try {
+            $stm = $this->dbCnx->prepare("INSERT INTO walls(name, status, address, about) values(?, ?, ?, ?)");
+            $stm->execute([$this->name, $this->status, $this->address, $this->about]);
+            echo "<script>alert('Data saved successfully');document.location='allData.php'</script>";
+        } catch (Exception $e) {
             return $e->getMessage();
         }
-        public function fetchAll(){
-            try{
-                stm = $this->dbCnx->prepare("SELECT * FROM walls");
-                $stm->execute();
-                return $stm->fetchAll();
-            }
-            catch(Exception $e){
-                return $e->getMessage();
-        } 
     }
-    public function fetchOne(){
-        try{
-        $stm = $this->dbCnx->prepare("SELECT FROM walls WHERE id =?");
-        $stm->execute([$this->id]);
+    public function fetchAll()
+    {
+        try {
+            $stm = $this->dbCnx->prepare("SELECT * FROM walls");
+            $stm->execute();
+            return $stm->fetchAll();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
     }
-    catch(Exception $e){
-        return $e->getMessage();
+    public function fetchOne()
+    {
+        try {
+            $stm = $this->dbCnx->prepare("SELECT FROM walls WHERE id =?");
+            $stm->execute([$this->id]);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
     }
 }
