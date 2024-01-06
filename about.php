@@ -87,38 +87,6 @@ include_once "header.php";
             </div>
         </section>
 
-        <!-- <section class="index-intro">
-            <div class="index-intro-bg">
-
-                <div class="wrapper">
-                    <div class="index-intro-c1">
-
-
-                        <h2 class="about-h2">Why ArtZoro?</h2>
-                        <p>In today’s time, urban art is slowly but surely becoming an integral part of the public urban
-                            environment and urban artists in turn, become a vital part of urban society.
-                            <br><br>
-                            By beautifying the surrounding environment we bring about a richer and more empathic existence
-                            while living in the concrete jungle that we call our homes.
-
-
-                        </p>
-                    </div>
-                    <div class="index-intro-c2">
-                        <p class="about-p-text-absolute">
-                            As we learn, in many cultures and in the world today, our environment is very important to us and defines us with time,
-                            all the while altering and influencing the way we feel and interact with each other and the world around us.
-                            <br>
-                            <br>
-                            We learn how to express ourselves when we are in need of creative release and we create an atmosphere of joy, relief
-                            and interconnectedness between us as human beings that live together in urban environments.
-                        </p>
-
-                    </div>
-                </div>
-            </div>
-        </section> -->
-
         <section class="index-intro">
             <div class="index-intro-bg">
 
