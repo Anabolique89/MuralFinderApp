@@ -13,6 +13,29 @@ li {
     padding: 0;
 }
 
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+    /* Bootstrap red color for danger */
+}
+
+.form-wrapper {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.contact-form-wrapper {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
 body,
 html {
     width: 100%;
@@ -87,12 +110,50 @@ main {
     backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    max-height: 80vh;
+    /* Set a maximum height if needed */
     padding: 25px;
     z-index: 10;
     position: absolute;
+    margin-top: 2%;
 
+    /* Hide scrollbar for webkit browsers (Chrome, Safari) */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
 }
+
+/* Hide scrollbar for Firefox */
+.onboarding-page-login::-webkit-scrollbar {
+    width: 12px;
+}
+
+.onboarding-page-login::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+/* Media Query for Small Screens */
+@media only screen and (max-width: 767px) {
+    .onboarding-page-login {
+        width: 80%;
+    }
+}
+
+/* Media Query for Medium Screens */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+    .onboarding-page-login {
+        width: 70%;
+    }
+}
+
+/* Media Query for Large Screens */
+@media only screen and (min-width: 992px) {
+    .onboarding-page-login {
+        width: 30%;
+    }
+}
+
 
 input {
     font-size: 0.8rem;
@@ -247,5 +308,6 @@ p {
     border: 1px solid #ccc;
     border-radius: 2rem;
     outline: none;
-    margin-top: 0.5rem; /* Adjust as needed */
+    margin-top: 0.5rem;
+    /* Adjust as needed */
 }

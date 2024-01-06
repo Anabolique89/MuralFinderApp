@@ -33,6 +33,14 @@
   background-size: cover;
   
   }
+  .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545; /* Bootstrap red color for danger */
+}
+
   .wrapper {
       width: 900px;
       margin: 0 auto;
@@ -1000,13 +1008,13 @@
   }
   
   .form-wrapper{
-    width: 15rem;
+    width: 50%;
     margin-left: auto;
     margin-right: auto;
     
   }
   .contact-form-wrapper{
-    width: 30rem;
+    width: 50%;
     margin-left: auto;
     margin-right: auto;
     
