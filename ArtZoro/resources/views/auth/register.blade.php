@@ -14,40 +14,80 @@
 <body>
 
     <main>
-        <img src="{{asset('img/graphics/bubbles.png')}}" class="graphics" alt="bubbles">
+
+
+        <img src="{{ asset('img/graphics/bubbles.png') }}" class="graphics" alt="bubbles">
         <div class="onboarding-page-login">
-            <div class="logo-container"><a href="homepage.php"><img src="{{asset('img/LOGOWhite.png')}}" alt="logo white"></a>
+            <div class="logo-container"><a href="homepage.php"><img src="{{ asset('img/LOGOWhite.png') }}"
+                        alt="logo white"></a>
             </div>
             <p>Create An Account with us</p>
             <div class="form-wrapper">
 
-                <form action="includes/signup.inc.php" method="post" class="signup-form">
+                <form action="{{ route('register') }}" method="post" class="signup-form">
+
+                    @csrf
                     <div class="input-wrapper">
                         <input type="text" name="username" placeholder="Username" class="input-text">
+                        @error('username')
+
+                            <span class="invalid-feedback"
+                                style="display: block; width: 100%; margin-top: .25rem; font-size: 80%; color: #dc3545;">
+                                <strong>
+                                    @error('username')@enderror
+                                </strong>
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="input-wrapper">
-                        <input type="text" name="email" placeholder="E-mail" class="input-text">
+                        <input type="email" name="email" placeholder="E-mail" class="input-text">
+                        @error('email')
+
+                            <span class="invalid-feedback"
+                                style="display: block; width: 100%; margin-top: .25rem; font-size: 80%; color: #dc3545;">
+                                <strong>
+                                    @error('email')@enderror
+                                </strong>
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="input-wrapper">
-                        <input type="password" name="pwd" placeholder="Password" class="input-text">
+                        <input type="password" name="password" placeholder="Password" class="input-text">
+                        @error('password')
+                            <span class="invalid-feedback"
+                                style="display: block; width: 100%; margin-top: .25rem; font-size: 80%; color: #dc3545;">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+
                     </div>
                     <div class="input-wrapper">
-                        <input type="password" name="pwdRepeat" placeholder="Repeat Password" class="input-text">
+                        <input type="password" name="password_confirmation" placeholder="Repeat Password"
+                            class="input-text">
+                        @error('password_confirmation')
+                            <span class="invalid-feedback"
+                                style="display: block; width: 100%; margin-top: .25rem; font-size: 80%; color: #dc3545;">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                     <div class="input-wrapper">
-                        <select name="role" id="role" class=".select" required>
+                        <select name="role" id="role" class="select" required>
                             <option value="{{ \App\Enums\UserRole::ART_LOVER }}">Art Lover</option>
                             <option value="{{ \App\Enums\UserRole::ARTIST }}">Artist</option>
                         </select>
                     </div>
-                    
+
                     <br>
                     <button type="submit" name="submit" class="submit-button btn">CREATE ACCOUNT</button>
                 </form>
-                <p class="bottom-p-text">Already have an account yet?<a class="link" href="{{route('login')}}"> Login
-                        here!</a></p>
+                <p class="bottom-p-text">Already have an account yet?<a class="link" href="{{ route('login') }}">
+                        Login
+                        here!</a>
+
+                </p>
             </div>
 
         </div>

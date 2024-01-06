@@ -23,6 +23,7 @@
             <div class="form-wrapper">
 
                 <form method="POST" action="{{ route('password.email') }}" class="signup-form">
+                    @csrf
                     <div class="input-wrapper">
                         <input type="text" name="email" placeholder="Username" class="input-text"
                             value="{{ old('email') }}" required autocomplete="email" autofocus>
