@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\LoginApiController;
+use App\Http\Controllers\Auth\LogoutApiController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RegisterApiController;
+use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\ProfileApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +21,33 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+/*
+ * Unauthenticated routes
+ */
+
+Route::post('register', RegisterApiController::class);
+Route::get('/verify-email/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
+Route::post('/email/verification/resend', ResendEmailVerificationController::class)->name('email.send');
+Route::post('login', LoginApiController::class);
+
+Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
+
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+/*
+ * Authenticated routes
+ */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', LogoutApiController::class);
+
+    Route::prefix('profiles')->group(function () {
+        Route::post('/', [ProfileApiController::class, 'create']);
+        Route::get('{id}', [ProfileApiController::class, 'show']);
+        Route::put('{id}', [ProfileApiController::class, 'update']);
+        Route::delete('{id}', [ProfileApiController::class, 'destroy']);
+
+        Route::post('{id}/image', [ProfileApiController::class, 'uploadProfileImage']);
+    });
 });
+
+
