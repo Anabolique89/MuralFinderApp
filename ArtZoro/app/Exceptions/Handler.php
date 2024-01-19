@@ -2,8 +2,14 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
+
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Throwable;
+
+
 
 class Handler extends ExceptionHandler
 {
@@ -26,5 +32,47 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return response()->json([
+            'error' => 'Unauthenticated',
+        ], 401);
+    }
+
+    /*
+     * return unauthenticated for non logged in users
+     */
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            $method = $request->getMethod();
+
+
+            return response()->json([
+                'success' => false,
+                'error' => "{$method} method not allowed for this route",
+            ], 405);
+        }
+
+        if ($exception instanceof AuthenticationException) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+            ], 401);
+        }
+
+        if ($exception instanceof UnauthorizedHttpException || $exception instanceof UnauthorizedException) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => $exception->getMessage(),
+        ], $exception->getCode() ?: 400);
+
     }
 }

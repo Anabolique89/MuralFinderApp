@@ -19,7 +19,7 @@
         <img src="./img/graphics/onboarding1.png" class="graphics" alt="graphic1">
 
         <div class="onboarding-page">
-            <h1 class="roboto-uppercase-heading">Welcome to Artzoro</h1>
+            <h1 class="roboto-uppercase-heading ">Welcome to Artzoro</h1>
             <p class="welcome-heading-small">Explore your full <br> creativity</p>
             <p class="welcome-text">Feel confident in having full coverage <br> when travelling and seeking murals. </p>
             <a href="{{url('/onboard2')}}" class="btn">Next</a>
