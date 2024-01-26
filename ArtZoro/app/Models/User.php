@@ -45,7 +45,38 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function profile(){
+    public function profile()
+    {
         return $this->hasOne(Profile::class);
     }
+
+    public function followers()
+    {
+        return $this->hasMany(Fellowship::class, 'following_id');
+    }
+
+    public function followings()
+    {
+        return $this->hasMany(Fellowship::class, 'follower_id');
+    }
+
+    public function follow(User $user)
+    {
+        return $this->followings()->create([
+            'follower_id' => $this->id, // set the follower_id as the current user's id
+            'following_id' => $user->id, // set the following_id as the user's id to be followed
+        ]);
+    }
+
+    public function isFollowing(User $user)
+    {
+        return $this->followings()->where('following_id', $user->id)->exists();
+    }
+
+
+    public function unfollow(User $user)
+    {
+        return $this->followings()->where('follower_id', $this->id)->where('following_id', $user->id)->delete();
+    }
+
 }
