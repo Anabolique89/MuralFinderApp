@@ -36,20 +36,20 @@ class FellowshipController extends ApiBaseController
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
-    
+
         $followedUser = User::find($validatedData['user_id']);
-    
+
         // Check if the user is being followed
         if (!$followedUser || !$follower->isFollowing($followedUser)) {
             return $this->sendError('Unable to unfollow user. User is not being followed.', JsonResponse::HTTP_BAD_REQUEST);
         }
-    
+
         // Unfollow the user
         $follower->unfollow($followedUser);
-    
+
         return $this->sendSuccess(null, 'User unfollowed successfully.');
     }
-    
+
 
 
     public function getUserFollowers(Request $request)
@@ -65,6 +65,7 @@ class FellowshipController extends ApiBaseController
         $user = $request->user();
         $followings = $user->followings;
 
-        return $this->sendSuccess($followings, 'User folloings retrieved successfully.');
+        return $this->sendSuccess($followings, 'User followings retrieved successfully.');
     }
+
 }
