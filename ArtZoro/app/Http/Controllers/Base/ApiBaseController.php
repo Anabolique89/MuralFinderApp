@@ -46,32 +46,5 @@ class ApiBaseController extends Controller
         return $this->statusCode;
     }
 
-    public function currencyIsValidCurrency($currency)
-    {
-        return SupportCurrency::hasValue($currency);
-    }
-
-    protected function validateOrderRequest(array $data)
-    {
-        $validator = validator($data, [
-            'description' => 'required|string',
-            'currency' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (!in_array($value, SupportCurrency::getValidCurrencies())) {
-                        $fail($attribute . ' is not a valid currency.');
-                    }
-                }
-            ],
-            'total' => 'required|numeric',
-            'payment_method' => 'required|in:stripe,paypal,payoneer,orange_momo,mtn_momo',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-    }
-
 
 }

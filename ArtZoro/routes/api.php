@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutApiController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('{id}', [ProfileApiController::class, 'destroy']);
 
         Route::post('{id}/image', [ProfileApiController::class, 'uploadProfileImage']);
+    });
+
+    Route::prefix('fellowships')->group(function () {
+        Route::post('follow', [FellowshipController::class, 'followUser']);
+        Route::post('unfollow', [FellowshipController::class, 'unfollowUser']);
+        Route::get('followers', [FellowshipController::class, 'getUserFollowers']);
+        Route::get('followings', [FellowshipController::class, 'getUserFollowings']);
     });
 });
 
