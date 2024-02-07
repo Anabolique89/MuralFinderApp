@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Base;
 
-use App\Enums\SupportCurrency;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
 class ApiBaseController extends Controller
@@ -46,5 +47,15 @@ class ApiBaseController extends Controller
         return $this->statusCode;
     }
 
+    protected function uploadImage($file, $folder = 'uploads', $disk = 'public')
+    {
+        try {
+            $path = $file->store($folder, $disk);
+            return \Storage::url($path);
+        } catch (\Exception $e) {
+            Log::error('Error uploading image: ' . $e->getMessage());
+            return null;
+        }
+    }
 
 }

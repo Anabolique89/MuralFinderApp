@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
 use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
+use App\Http\Controllers\ArtworkController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +57,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('followers', [FellowshipController::class, 'getUserFollowers']);
         Route::get('followings', [FellowshipController::class, 'getUserFollowings']);
     });
+
+    Route::prefix('artworks')->group(function () {
+        Route::post('', [ArtworkController::class, 'store']);
+        Route::put('/{artwork}', [ArtworkController::class, 'update']);
+        Route::delete('/{artwork}', [ArtworkController::class, 'destroy']);
+        Route::post('/{artwork}/image', [ArtworkController::class, 'changeImage']);
+    });
 });
 
 
+Route::prefix('artworks')->group(function () {
+    Route::get('', [ArtworkController::class, 'index']);
+    Route::get('{artwork}', [ArtworkController::class, 'show']);
+});
