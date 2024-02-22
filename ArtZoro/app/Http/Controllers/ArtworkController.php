@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ArtworkLike;
+use App\Models\ArtworkComment;
 
 class ArtworkController extends ApiBaseController
 {
@@ -117,22 +119,100 @@ class ArtworkController extends ApiBaseController
         }
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $artwork = Artwork::find($id);
-        if(!$artwork){
+        if (!$artwork) {
             return $this->sendError('no artwork found');
         }
 
-        if($artwork->user_id !== Auth::id()){
+        if ($artwork->user_id !== Auth::id()) {
             return $this->sendError("Can not delete another persons artwor");
         }
 
-        try{
+        try {
             $artwork->delete();
             return $this->sendSuccess(null, "artwork deleted");
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error("Error Deleting Artwork: " . $e->getMessage());
             return $this->sendError("Internal Server Error, please refresh and try again");
+        }
+    }
+
+    public function like(Artwork $artwork)
+    {
+        $userId = Auth::id();
+
+
+        // Check if the user has already liked the artwork
+        $existingLike = ArtworkLike::where('user_id', $userId)
+            ->where('artwork_id', $artwork->id)
+            ->first();
+
+        if ($existingLike) {
+            return $this->sendError('You have already liked this artwork');
+        }
+
+        try {
+            // Create a new like
+            $like = ArtworkLike::create([
+                'user_id' => $userId,
+                'artwork_id' => $artwork->id,
+            ]);
+
+            return $this->sendSuccess($like, 'Artwork liked successfully');
+        } catch (\Exception $e) {
+            Log::error('Error liking artwork: ' . $e->getMessage());
+            return $this->sendError('An error occurred while liking artwork');
+        }
+    }
+
+    public function unlike(Artwork $artwork)
+    {
+        $userId = Auth::id();
+
+        // Find the like to delete
+        $like = ArtworkLike::where('user_id', $userId)
+            ->where('artwork_id', $artwork->id)
+            ->first();
+
+        if (!$like) {
+            return $this->sendError('You have not liked this artwork', 400);
+        }
+
+        try {
+            // Delete the like
+            $like->delete();
+
+            return $this->sendSuccess(null, 'Artwork unliked successfully');
+        } catch (\Exception $e) {
+            Log::error('Error unliking artwork: ' . $e->getMessage());
+            return $this->sendError('An error occurred while unliking artwork', 500);
+        }
+    }
+
+    public function comment(Request $request, Artwork $artwork)
+    {
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        try {
+            // Create a new comment
+            $comment = ArtworkComment::create([
+                'user_id' => Auth::id(),
+                'artwork_id' => $artwork->id,
+                'content' => $request->input('content'),
+            ]);
+
+            return $this->sendSuccess($comment, 'Comment added successfully');
+        } catch (\Exception $e) {
+            Log::error('Error adding comment: ' . $e->getMessage());
+            return $this->sendError('An error occurred while adding comment', 500);
         }
     }
 

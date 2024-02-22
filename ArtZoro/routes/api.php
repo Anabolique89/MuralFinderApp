@@ -63,6 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{artwork}', [ArtworkController::class, 'update']);
         Route::delete('/{artwork}', [ArtworkController::class, 'destroy']);
         Route::post('/{artwork}/image', [ArtworkController::class, 'changeImage']);
+        Route::delete('/{artwork}/unlike', [ArtworkController::class, 'unlike']);
+        Route::post('/{artwork}/like', [ArtworkController::class, 'like']);
+        Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
     });
 });
 
@@ -70,4 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('artworks')->group(function () {
     Route::get('', [ArtworkController::class, 'index']);
     Route::get('{artwork}', [ArtworkController::class, 'show']);
+
+
 });

@@ -9,6 +9,7 @@ class ArtworkLike extends Model
 {
 
     protected $fillable = ['user_id', 'artwork_id'];
+    protected $table = 'likes';
 
     use HasFactory;
     public function artwork()
