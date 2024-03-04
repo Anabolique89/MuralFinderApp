@@ -28,7 +28,10 @@ class ArtworkController extends ApiBaseController
     public function show($artwork)
     {
 
-        $artwork = Artwork::find($artwork);
+        $artwork = Artwork::with('user')
+                    ->withCount('likes') // Count the number of likes
+                    ->withCount('comments') // Count the number of comments
+                    ->find($artwork);
 
         if (!$artwork) {
             return $this->sendError('No artwork with such id', 404);
