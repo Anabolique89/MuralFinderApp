@@ -15,11 +15,15 @@ use App\Models\ArtworkComment;
 class ArtworkController extends ApiBaseController
 {
     public function index(Request $request)
-    {
-        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
-        $artworks = Artwork::with('user')->paginate($pageSize);
-        return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
-    }
+{
+    $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+    $artworks = Artwork::with('user')
+                    ->withCount('likes') // Count the number of likes
+                    ->withCount('comments') // Count the number of comments
+                    ->paginate($pageSize);
+    return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
+}
+
 
     public function show($artwork)
     {

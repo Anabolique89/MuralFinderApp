@@ -73,6 +73,4 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('artworks')->group(function () {
     Route::get('', [ArtworkController::class, 'index']);
     Route::get('{artwork}', [ArtworkController::class, 'show']);
-
-
 });
