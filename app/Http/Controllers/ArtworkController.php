@@ -51,7 +51,7 @@ class ArtworkController extends ApiBaseController
                 return $this->sendError($validator->errors()->toArray());
             }
 
-            $imagePath = $this->uploadImage(file: $request->file('image'), folder: 'uploads/artworks', disk: 'public');
+            $imagePath = $this->uploadImage($request->file('image'), 'artworks', 'public');
             if (!$imagePath) {
                 return $this->sendError('Failed to upload image');
             }
