@@ -81,6 +81,9 @@ class ArtworkController extends ApiBaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->toArray());
             }
+            if ($artwork->user_id !== Auth::id()) {
+                return $this->sendError("Can not update another persons artwork");
+            }
 
             $data = $validator->validated();
 
@@ -140,7 +143,7 @@ class ArtworkController extends ApiBaseController
         }
 
         if ($artwork->user_id !== Auth::id()) {
-            return $this->sendError("Can not delete another persons artwor");
+            return $this->sendError("Can not delete another persons artwork");
         }
 
         try {
