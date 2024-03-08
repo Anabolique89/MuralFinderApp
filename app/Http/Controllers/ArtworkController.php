@@ -70,12 +70,12 @@ class ArtworkController extends ApiBaseController
 
     public function update(Request $request, Artwork $artwork)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
-                'description' => 'required|string',
                 'image' => 'nullable|image|max:2048', // Validate image upload
-                'user_id' => 'required|exists:users,id',
+                
             ]);
 
             if ($validator->fails()) {
@@ -84,13 +84,19 @@ class ArtworkController extends ApiBaseController
 
             $data = $validator->validated();
 
+            
+
             if ($request->hasFile('image')) {
-                $imagePath = $this->uploadImage($request->file('image'), 'uploads/artworks');
+                Storage::disk('public')->delete($artwork->image_path);
+                $imagePath = $this->uploadImage($request->file('image'), 'artworks', 'public');
                 if (!$imagePath) {
                     return $this->sendError('Failed to upload image');
                 }
                 $data['image_path'] = $imagePath;
             }
+
+            unset($data['image']);
+
 
             $artwork->update($data);
             return $this->sendSuccess($artwork, 'Artwork updated successfully');
