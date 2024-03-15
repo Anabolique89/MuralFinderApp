@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutApiController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
@@ -74,3 +75,5 @@ Route::prefix('artworks')->group(function () {
     Route::get('', [ArtworkController::class, 'index']);
     Route::get('{artwork}', [ArtworkController::class, 'show']);
 });
+
+Route::post('/contact', [ContactController::class, 'contactUs']);
