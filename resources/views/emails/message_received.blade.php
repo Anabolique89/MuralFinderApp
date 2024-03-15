@@ -1,16 +1,16 @@
 @component('mail::message')
 # New Message Received
-====================
 
 Hello Admin,
 
 You have received a new message from a user:
 
-- Name: <b>{{ $message->name }}</b>
-- Email: <b>{{ $message->email }}</b>
+@component('mail:panel')
+Subject: ## {{ $message->subject}}
+Name: ## {{ $message->name }}
+Email: ## {{ $message->email }}
 
-@component('mail::panel')
-### Message 
+## Message 
 {{ $message->content }}
 @endcomponent
 
