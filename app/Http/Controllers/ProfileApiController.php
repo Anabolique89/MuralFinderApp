@@ -149,11 +149,16 @@ class ProfileApiController extends ApiBaseController
 
         $name = $request->get('name');
         if($name){
-            $query->where('name', 'like', '%'.$name.'%')
-            ->orWhere('email', 'like', '%'.$name.'%');
+            $query->where('username', 'like', '%'.$name.'%')
+            ->orWhere('email', 'like', '%'.$name.'%')
+            ->orWhereHas('profile', function ($query) use ($name){
+                $query->where('first_name', 'like', "% $name %")
+                ->orWhere('last_name', 'like', "% $name %");
+                
+            });
         }
 
-        $users = $query->paginate(15);
+        $users = $query->with('profile')->paginate(15);
         return $this->sendSuccess($users, 'users fetched');
     }
 
