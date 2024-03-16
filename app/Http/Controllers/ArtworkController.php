@@ -15,23 +15,39 @@ use App\Models\ArtworkComment;
 class ArtworkController extends ApiBaseController
 {
     public function index(Request $request)
-{
-    $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
-    $artworks = Artwork::with('user')
-                    ->withCount('likes') // Count the number of likes
-                    ->withCount('comments') // Count the number of comments
-                    ->paginate($pageSize);
-    return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
-}
+    {
+        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+        $artworks = Artwork::with('user')
+            ->withCount('likes') // Count the number of likes
+            ->withCount('comments') // Count the number of comments
+            ->paginate($pageSize);
+        return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
+    }
 
+    public function search(Request $request)
+    {
+        $query = Artwork::query();
+
+        $searchQuery = $request->get('query'); // Adjust query parameter name if needed
+        if ($searchQuery) {
+            $query->where(function ($query) use ($searchQuery) {
+                $query->where('title', 'like', '%' . $searchQuery . '%')
+                    ->orWhere('description', 'like', '%' . $searchQuery . '%');
+            }, null, null, 'OR');
+        }
+
+        $artworks = $query->paginate(15);
+
+        return $this->sendSuccess($artworks, "artworks searched");
+    }
 
     public function show($artwork)
     {
 
         $artwork = Artwork::with('user')
-                    ->withCount('likes') // Count the number of likes
-                    ->withCount('comments') // Count the number of comments
-                    ->find($artwork);
+            ->withCount('likes') // Count the number of likes
+            ->withCount('comments') // Count the number of comments
+            ->find($artwork);
 
         if (!$artwork) {
             return $this->sendError('No artwork with such id', 404);
@@ -75,7 +91,7 @@ class ArtworkController extends ApiBaseController
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
                 'image' => 'nullable|image|max:2048', // Validate image upload
-                
+
             ]);
 
             if ($validator->fails()) {
@@ -87,7 +103,7 @@ class ArtworkController extends ApiBaseController
 
             $data = $validator->validated();
 
-            
+
 
             if ($request->hasFile('image')) {
                 Storage::disk('public')->delete($artwork->image_path);

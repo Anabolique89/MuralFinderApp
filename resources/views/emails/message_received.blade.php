@@ -5,7 +5,7 @@ Hello Admin,
 
 You have received a new message from a user:
 
-@component('mail:panel')
+@component('mail::panel')
 Subject: ## {{ $message->subject}}
 Name: ## {{ $message->name }}
 Email: ## {{ $message->email }}
