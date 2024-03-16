@@ -79,3 +79,4 @@ Route::prefix('artworks')->group(function () {
 
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
+Route::get('users/search', [ProfileApiController::class, 'search']);

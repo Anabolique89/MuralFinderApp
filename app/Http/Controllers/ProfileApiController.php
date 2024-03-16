@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -136,6 +137,24 @@ class ProfileApiController extends ApiBaseController
             \Log::error('Error uploading profile image: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function search(Request $request){
+        $query = User::query();
+
+        $role = $request->get('role');
+        if($role){
+            $query->where('role', $role);
+        }
+
+        $name = $request->get('name');
+        if($name){
+            $query->where('name', 'like', '%'.$name.'%')
+            ->orWhere('email', 'like', '%'.$name.'%');
+        }
+
+        $users = $query->paginate(15);
+        return $this->sendSuccess($users, 'users fetched');
     }
 
 
