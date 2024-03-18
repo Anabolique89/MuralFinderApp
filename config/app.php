@@ -31,8 +31,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
-    'frontend_url' => env('FRONTEND_URL', 'https://muralfinder.net'),
-
+ 
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
@@ -60,6 +59,8 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     'asset_url' => env('ASSET_URL'),
+
+    'frontend_url' => env('FRONTEND_URL', 'www.muralfinder.net'),
 
     /*
     |--------------------------------------------------------------------------
