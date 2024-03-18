@@ -111,51 +111,66 @@ class ProfileApiController extends ApiBaseController
     }
 
     public function uploadProfileImage(Request $request, $id)
-    {
-        try {
-            $profile = Profile::find($id);
+{
+    try {
+        $profile = Profile::find($id);
 
-            if (!$profile) {
-                return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
+        if (!$profile) {
+            return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('The image is either null or does not pass the following rules: jpeg, png, jpg, gif, max:2048', JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $image = $request->file('image');
+
+        if ($image) {
+            // Delete the previous image if it exists
+            if ($profile->profile_image_url) {
+                $existingImagePath = str_replace('/storage', '', $profile->profile_image_url);
+                Storage::disk('public')->delete($existingImagePath);
             }
 
-            $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+            // Upload the new image
+            $path = $this->uploadImage($image, 'uploads/profiles/', 'public');
 
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-
-            // Store the image in the 'profile_images' directory within the public disk
-            Storage::disk('public')->putFileAs('profile_images', $image, $imageName);
-
-            // Update the profile's image_filename attribute
-            $profile->update(['profile_image_url' => $imageName]);
-
-            return $this->sendSuccess(null, 'Profile image uploaded successfully');
-        } catch (\Exception $e) {
-            \Log::error('Error uploading profile image: ' . $e->getMessage());
-            return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            $profile->profile_image_url = $path;
+            $profile->save();
+        } else {
+            // No new image uploaded, keep existing path (if applicable)
+            $path = $profile->profile_image_url;
         }
-    }
 
-    public function search(Request $request){
+        return $this->sendSuccess($path, 'Profile image uploaded successfully');
+    } catch (\Exception $e) {
+        \Log::error('Error uploading profile image: ' . $e->getMessage());
+        return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
+
+    public function search(Request $request)
+    {
         $query = User::query();
 
         $role = $request->get('role');
-        if($role){
+        if ($role) {
             $query->where('role', $role);
         }
 
         $name = $request->get('name');
-        if($name){
-            $query->where('username', 'like', '%'.$name.'%')
-            ->orWhere('email', 'like', '%'.$name.'%')
-            ->orWhereHas('profile', function ($query) use ($name){
-                $query->where('first_name', 'like', "% $name %")
-                ->orWhere('last_name', 'like', "% $name %");
-                
-            });
+        if ($name) {
+            $query->where('username', 'like', '%' . $name . '%')
+                ->orWhere('email', 'like', '%' . $name . '%')
+                ->orWhereHas('profile', function ($query) use ($name) {
+                    $query->where('first_name', 'like', "% $name %")
+                        ->orWhere('last_name', 'like', "% $name %");
+
+                });
         }
 
         $users = $query->with('profile')->paginate(15);
