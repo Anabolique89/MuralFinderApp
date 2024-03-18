@@ -35,25 +35,24 @@ class EmailVerificationController extends ApiBaseController
             // TODO: Send Activation success email
             // return $this->sendSuccess($user, "Email succesfuly verified, please login");
             return redirect()->intended(
-                config('app.frontend_url').'/login?verified=1'
+                env('FRONTEND_URL').'/login?verified=1'
             );
         } catch (\Illuminate\Database\QueryException $e) {
-            // Log the error.
             logger()->error($e->getMessage());
             return $this->sendError($e->getMessage());
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Log the error.
-            logger()->error($e->getMessage());
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            logger()->error($e->getMessage());
             return redirect()->intended(
-                config('app.frontend_url').'/login?verified=0'
+                env('FRONTEND_URL').'/login?verified=0'
             );
+
         } catch (\Exception $e) {
             // Log the error.
             logger()->error($e->getMessage());
 
             return redirect()->intended(
-                config('app.frontend_url').'/login?verified=0'
+                env('FRONTEND_URL').'/login?verified=0'
             );
         }
     }
