@@ -34,7 +34,7 @@ class EmailVerificationController extends ApiBaseController
 
             // TODO: Send Activation success email
             // return $this->sendSuccess($user, "Email succesfuly verified, please login");
-            return redirect()->intended(
+            return redirect(
                 config('app.frontend_url').'/login?verified=1'
             );
 
