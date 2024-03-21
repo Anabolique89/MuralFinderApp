@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserRoles;
 use App\Http\Controllers\Base\ApiBaseController;
-use App\Models\CurrentRole;
 use App\Models\Profile;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Spatie\Permission\Models\Role;
 
 class EmailVerificationController extends ApiBaseController
 {
@@ -34,6 +30,7 @@ class EmailVerificationController extends ApiBaseController
 
             // TODO: Send Activation success email
             // return $this->sendSuccess($user, "Email succesfuly verified, please login");
+            // Assuming you have FRONTEND_URL set in your .env file
             return redirect()->intended(env('FRONTEND_URL') . '/login?verified=1');
         } catch (\Illuminate\Database\QueryException $e) {
             logger()->error($e->getMessage());

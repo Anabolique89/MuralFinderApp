@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutApiController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
@@ -68,6 +69,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{artwork}/like', [ArtworkController::class, 'like']);
         Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
     });
+
+    Route::prefix('posts')->group(function () {
+        Route::post('', [CommunityPostController::class, 'store']);
+        Route::post('/{post}', [CommunityPostController::class, 'update']);
+        Route::delete('/{post}', [CommunityPostController::class, 'destroy']);
+        Route::post('/{post}/image', [CommunityPostController::class, 'changeImage']);
+        Route::delete('/{post}/unlike', [CommunityPostController::class, 'unlike']);
+        Route::post('/{post}/like', [CommunityPostController::class, 'like']);
+        Route::post('/{posts}/comment', [CommunityPostController::class, 'comment']);
+    });
 });
 
 
@@ -76,6 +87,13 @@ Route::prefix('artworks')->group(function () {
     Route::get('{artwork}', [ArtworkController::class, 'show'])->name('artworks.show');
     Route::get('artwork/search', [ArtworkController::class, 'search'])->name('artworks.search'); // Use 'find' or another descriptive prefix
 });
+
+Route::prefix('posts')->group(function () {
+    Route::get('', [CommunityPostController::class, 'index'])->name('posts.index');
+    Route::get('{post}', [CommunityPostController::class, 'show'])->name('posts.show');
+    Route::get('post/search', [CommunityPostController::class, 'search'])->name('posts.search'); // Use 'find' or another descriptive prefix
+});
+
 
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
