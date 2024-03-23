@@ -13,8 +13,9 @@ class LoginApiController extends ApiBaseController
     public function __invoke(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $loginField = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::attempt([$loginField => $credentials['email'], 'password' => $credentials['password']])) {
             return $this->sendError('Invalid email or password', JsonResponse::HTTP_UNAUTHORIZED);
         }
 
@@ -28,7 +29,7 @@ class LoginApiController extends ApiBaseController
         Event::dispatch('user.login', $user);
 
         $token = $user->createToken('authToken')->plainTextToken;
-        
+
         $user->load('profile');
 
         $responseData = [
@@ -44,7 +45,7 @@ class LoginApiController extends ApiBaseController
                 'role' => $user->role,
             ],
         ];
-        
+
         return $this->sendSuccess($responseData, 'Login successful');
     }
 }
