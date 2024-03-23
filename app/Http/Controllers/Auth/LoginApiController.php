@@ -16,7 +16,7 @@ class LoginApiController extends ApiBaseController
         $loginField = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         if (!Auth::attempt([$loginField => $credentials['email'], 'password' => $credentials['password']])) {
-            return $this->sendError('Invalid email or password', JsonResponse::HTTP_UNAUTHORIZED);
+            return $this->sendError('Invalid email | username or password', JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $user = $request->user();
