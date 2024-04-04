@@ -29,6 +29,7 @@ class ApiBaseController extends Controller
         ], $code);
     }
 
+
     public function validationError(array $errors, $code = JsonResponse::HTTP_BAD_REQUEST)
     {
         throw ValidationException::withMessages($errors);
@@ -56,6 +57,22 @@ class ApiBaseController extends Controller
             Log::error('Error uploading image: ' . $e->getMessage());
             return null;
         }
+    }
+
+    protected function deleteImage($imagePath)
+    {
+        try {
+            $fullImagePath = public_path($imagePath);
+
+            if (file_exists($fullImagePath)) {
+                unlink($fullImagePath);
+                return true;
+            }
+        } catch (\Exception $e) {
+            Log::error('Error deleting image: ' . $e->getMessage());
+        }
+
+        return false;
     }
 
 }

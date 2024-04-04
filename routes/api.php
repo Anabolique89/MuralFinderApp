@@ -11,6 +11,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
+use App\Http\Controllers\WallController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -79,6 +80,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{post}/like', [CommunityPostController::class, 'like']);
         Route::post('/{posts}/comment', [CommunityPostController::class, 'comment']);
     });
+
+    Route::group(['prefix' => 'walls'], function () {
+        Route::post('/', [WallController::class, 'store']);
+        Route::post('/{id}', [WallController::class, 'update']);
+        Route::delete('/{id}', [WallController::class, 'destroy']);
+        Route::put('/{id}/verify', [WallController::class, 'verifyWall']);
+    });
 });
 
 
@@ -94,6 +102,11 @@ Route::prefix('posts')->group(function () {
     Route::get('post/search', [CommunityPostController::class, 'search'])->name('posts.search'); // Use 'find' or another descriptive prefix
 });
 
+Route::group(['prefix' => 'walls'], function () {
+    Route::get('/', [WallController::class, 'index']);
+    Route::get('/{id}', [WallController::class, 'show']);
+    Route::get('/search', [WallController::class, 'search']);
+});
 
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
