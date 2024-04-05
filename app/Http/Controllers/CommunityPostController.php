@@ -257,4 +257,15 @@ class CommunityPostController extends ApiBaseController
             return $this->sendError('An error occurred while adding comment', 500);
         }
     }
+
+    public function getPostComments($post)
+    {
+        try {
+            $comments = PostComment::where('post_id', $post)->get();
+            return $this->sendSuccess($comments, 'Comments retrieved successfully');
+        } catch (\Exception $e) {
+            Log::error('Error retrieving comments: ' . $e->getMessage());
+            return $this->sendError('An error occurred while retrieving comments', 500);
+        }
+    }
 }

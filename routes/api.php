@@ -99,6 +99,7 @@ Route::prefix('artworks')->group(function () {
 Route::prefix('posts')->group(function () {
     Route::get('', [CommunityPostController::class, 'index'])->name('posts.index');
     Route::get('{post}', [CommunityPostController::class, 'show'])->name('posts.show');
+    Route::get('{post}/comments', [CommunityPostController::class, 'getPostComments'])->name('posts.loadcomments');
     Route::get('post/search', [CommunityPostController::class, 'search'])->name('posts.search'); // Use 'find' or another descriptive prefix
 });
 
