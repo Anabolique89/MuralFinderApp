@@ -261,7 +261,7 @@ class CommunityPostController extends ApiBaseController
     public function getPostComments($post)
     {
         try {
-            $comments = PostComment::where('post_id', $post)->get();
+            $comments = PostComment::with('user')->where('post_id', $post)->get();
             return $this->sendSuccess($comments, 'Comments retrieved successfully');
         } catch (\Exception $e) {
             Log::error('Error retrieving comments: ' . $e->getMessage());
