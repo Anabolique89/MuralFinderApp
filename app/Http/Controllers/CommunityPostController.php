@@ -233,7 +233,7 @@ class CommunityPostController extends ApiBaseController
         }
     }
 
-    public function comment(Request $request, post $post)
+    public function comment(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'content' => 'required|string',
@@ -247,7 +247,7 @@ class CommunityPostController extends ApiBaseController
             // Create a new comment
             $comment = PostComment::create([
                 'user_id' => Auth::id(),
-                'post_id' => $post->id,
+                'post_id' => $request->post_id,
                 'content' => $request->input('content'),
             ]);
 
