@@ -79,22 +79,22 @@ class ProfileApiController extends ApiBaseController
     public function show($id)
     {
         try {
-            $profile = Profile::with('user')
+            $user = User::with('profile')
                 ->withCount('followers')
                 ->withCount('followings')
-                ->where('user_id', $id)
-                ->first();
+                ->find($id);
 
-            if (!$profile) {
-                return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
+            if (!$user) {
+                return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
             }
 
-            return $this->sendSuccess($profile, "Profile fetched");
+            return $this->sendSuccess($user, "User profile fetched");
         } catch (\Exception $e) {
-            \Log::error('Error fetching profile: ' . $e->getMessage());
+            \Log::error('Error fetching user profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     public function destroy($id)
