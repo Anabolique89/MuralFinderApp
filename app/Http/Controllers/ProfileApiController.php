@@ -79,7 +79,11 @@ class ProfileApiController extends ApiBaseController
     public function show($id)
     {
         try {
-            $profile = Profile::with('user')->where('user_id', $id)->get();
+            $profile = Profile::with('user')
+                ->withCount('followers')
+                ->withCount('followings')
+                ->where('user_id', $id)
+                ->first();
 
             if (!$profile) {
                 return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
@@ -91,6 +95,7 @@ class ProfileApiController extends ApiBaseController
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     public function destroy($id)
     {
@@ -111,47 +116,47 @@ class ProfileApiController extends ApiBaseController
     }
 
     public function uploadProfileImage(Request $request, $id)
-{
-    try {
-        $profile = Profile::find($id);
+    {
+        try {
+            $profile = Profile::find($id);
 
-        if (!$profile) {
-            return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('The image is either null or does not pass the following rules: jpeg, png, jpg, gif, max:2048', JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $image = $request->file('image');
-
-        if ($image) {
-            // Delete the previous image if it exists
-            if ($profile->profile_image_url) {
-                $existingImagePath = str_replace('/storage', '', $profile->profile_image_url);
-                Storage::disk('public')->delete($existingImagePath);
+            if (!$profile) {
+                return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
             }
 
-            // Upload the new image
-            $path = $this->uploadImage($image, 'uploads/profiles/', 'public');
+            $validator = Validator::make($request->all(), [
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-            $profile->profile_image_url = $path;
-            $profile->save();
-        } else {
-            // No new image uploaded, keep existing path (if applicable)
-            $path = $profile->profile_image_url;
+            if ($validator->fails()) {
+                return $this->sendError('The image is either null or does not pass the following rules: jpeg, png, jpg, gif, max:2048', JsonResponse::HTTP_BAD_REQUEST);
+            }
+
+            $image = $request->file('image');
+
+            if ($image) {
+                // Delete the previous image if it exists
+                if ($profile->profile_image_url) {
+                    $existingImagePath = str_replace('/storage', '', $profile->profile_image_url);
+                    Storage::disk('public')->delete($existingImagePath);
+                }
+
+                // Upload the new image
+                $path = $this->uploadImage($image, 'uploads/profiles/', 'public');
+
+                $profile->profile_image_url = $path;
+                $profile->save();
+            } else {
+                // No new image uploaded, keep existing path (if applicable)
+                $path = $profile->profile_image_url;
+            }
+
+            return $this->sendSuccess($path, 'Profile image uploaded successfully');
+        } catch (\Exception $e) {
+            \Log::error('Error uploading profile image: ' . $e->getMessage());
+            return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return $this->sendSuccess($path, 'Profile image uploaded successfully');
-    } catch (\Exception $e) {
-        \Log::error('Error uploading profile image: ' . $e->getMessage());
-        return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
     }
-}
 
     public function search(Request $request)
     {

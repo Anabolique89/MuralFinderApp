@@ -56,6 +56,23 @@ class CommunityPostController extends ApiBaseController
         return $this->sendSuccess($post, 'post retrieved successfully');
     }
 
+    public function postsByUser($userId)
+{
+    try {
+        $userPosts = Post::with('user')
+            ->withCount('likes')
+            ->withCount('comments')
+            ->where('user_id', $userId)
+            ->paginate(10);
+
+        return $this->sendSuccess($userPosts, 'Posts by user retrieved successfully');
+    } catch (\Exception $e) {
+        \Log::error('Error fetching posts by user: ' . $e->getMessage());
+        return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
+
+
     public function store(Request $request)
     {
         try {
