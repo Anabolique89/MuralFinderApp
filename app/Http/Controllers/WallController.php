@@ -74,7 +74,7 @@ class WallController extends ApiBaseController
      */
     public function show($id)
     {
-        $wall = Wall::with('addedBy')->findOrFail($id);
+        $wall = Wall::with('addedBy')->find($id);
         return $this->sendSuccess($wall);
     }
 
