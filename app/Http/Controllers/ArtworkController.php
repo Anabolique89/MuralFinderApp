@@ -62,8 +62,6 @@ class ArtworkController extends ApiBaseController
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
                 'description' => 'required|string',
-                'images' => 'required|array|min:1', // At least one image is required
-                'images.*' => 'image|max:2048', // Validate each image in the array
             ]);
 
             if ($validator->fails()) {
