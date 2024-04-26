@@ -72,20 +72,22 @@ class ArtworkController extends ApiBaseController
             $artworkData['user_id'] = Auth::id();
             $artworkData['image_path'] = 'null';
 
-            // Create the artwork
-            $artwork = Artwork::create($artworkData);
+           $artwork = Artwork::create($artworkData);
 
-            // Handle image upload
-            $imagePaths = [];
-            foreach ($request->file('images') as $image) {
-                $imagePath = $this->uploadImage($image, 'artworks', 'public');
-                if (!$imagePath) {
-                    return $this->sendError('Failed to upload image');
-                }
-                $imagePaths[] = $imagePath; 
-                $artwork->image_path = $imagePaths[0];
-                $artwork->save();
-            }
+// Handle image upload if files were uploaded
+if ($request->hasFile('images')) {
+    $imagePaths = [];
+    foreach ($request->file('images') as $image) {
+        $imagePath = $this->uploadImage($image, 'artworks', 'public');
+        if (!$imagePath) {
+            return $this->sendError('Failed to upload image');
+        }
+        $imagePaths[] = $imagePath; 
+    }
+    // Update the artwork's image path
+    $artwork->image_path = $imagePaths[0];
+    $artwork->save();
+}
 
             // Associate the image paths with the artwork
             foreach ($imagePaths as $imagePath) {
