@@ -26,4 +26,8 @@ class Artwork extends Model
     {
         return $this->hasMany(ArtworkComment::class);
     }
+
+    public function images(){
+        return $this->hasMany(ArtworkImage::class);
+    }
 }

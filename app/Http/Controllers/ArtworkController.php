@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Artwork;
+use App\Models\ArtworkImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -60,30 +61,48 @@ class ArtworkController extends ApiBaseController
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
-                'image' => 'required|image|max:2048',
+                'description' => 'required|string',
+                'images' => 'required|array|min:1', // At least one image is required
+                'images.*' => 'image|max:2048', // Validate each image in the array
             ]);
 
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->toArray());
             }
 
-            $imagePath = $this->uploadImage($request->file('image'), 'artworks', 'public');
-            if (!$imagePath) {
-                return $this->sendError('Failed to upload image');
+            $artworkData = $validator->validated();
+            $artworkData['user_id'] = Auth::id();
+            $artworkData['image_path'] = 'null';
+
+            // Create the artwork
+            $artwork = Artwork::create($artworkData);
+
+            // Handle image upload
+            $imagePaths = [];
+            foreach ($request->file('images') as $image) {
+                $imagePath = $this->uploadImage($image, 'artworks', 'public');
+                if (!$imagePath) {
+                    return $this->sendError('Failed to upload image');
+                }
+                $imagePaths[] = $imagePath; 
+                $artwork->image_path = $imagePaths[0];
+                $artwork->save();
             }
 
-            $data = $validator->validated();
-            $data['image_path'] = $imagePath;
-            $data['user_id'] = Auth::id();
+            // Associate the image paths with the artwork
+            foreach ($imagePaths as $imagePath) {
+                $artworkImage = new ArtworkImage(['artwork_url' => $imagePath]);
+                $artwork->images()->save($artworkImage);
+            }
 
-            $artwork = Artwork::create($data);
+            $artwork->load('images');
+
             return $this->sendSuccess($artwork, 'Artwork created successfully');
         } catch (\Exception $e) {
             Log::error('Error storing artwork: ' . $e->getMessage());
             return $this->sendError('An error occurred while creating artwork', 500);
         }
     }
-
     public function update(Request $request, Artwork $artwork)
     {
 
