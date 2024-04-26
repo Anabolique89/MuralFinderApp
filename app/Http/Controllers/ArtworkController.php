@@ -26,21 +26,26 @@ class ArtworkController extends ApiBaseController
     }
 
     public function search(Request $request)
-    {
-        $query = Artwork::query();
+{
+    $query = Artwork::query();
 
-        $searchQuery = $request->get('query'); // Adjust query parameter name if needed
-        if ($searchQuery) {
-            $query->where(function ($query) use ($searchQuery) {
-                $query->where('title', 'like', '%' . $searchQuery . '%')
-                    ->orWhere('description', 'like', '%' . $searchQuery . '%');
-            }, null, null, 'OR');
-        }
+    // Get search query
+    $searchQuery = $request->get('query');
 
-        $artworks = $query->paginate(15);
-
-        return $this->sendSuccess($artworks, "artworks searched");
+    // Apply search filter
+    if ($searchQuery) {
+        $query->where(function ($query) use ($searchQuery) {
+            $query->where('title', 'like', '%' . $searchQuery . '%')
+                ->orWhere('description', 'like', '%' . $searchQuery . '%');
+        });
     }
+
+    // Paginate the results
+    $pageSize = $request->get('pageSize', 15);
+    $artworks = $query->paginate($pageSize);
+
+    return $this->sendSuccess($artworks, "Artworks searched");
+}
 
     public function show($artwork)
     {
