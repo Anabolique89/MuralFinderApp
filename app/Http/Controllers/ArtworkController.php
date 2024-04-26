@@ -32,7 +32,6 @@ class ArtworkController extends ApiBaseController
     // Get search query
     $searchQuery = $request->get('query');
 
-    // Apply search filter
     if ($searchQuery) {
         $query->where(function ($query) use ($searchQuery) {
             $query->where('title', 'like', '%' . $searchQuery . '%')

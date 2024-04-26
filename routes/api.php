@@ -59,6 +59,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('unfollow', [FellowshipController::class, 'unfollowUser']);
         Route::get('followers', [FellowshipController::class, 'getUserFollowers']);
         Route::get('followings', [FellowshipController::class, 'getUserFollowings']);
+        Route::get('isFollowing/{userId}', [FellowshipController::class, 'isFollowingUser']);
+
     });
 
     Route::prefix('artworks')->group(function () {

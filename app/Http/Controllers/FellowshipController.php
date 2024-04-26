@@ -50,6 +50,24 @@ class FellowshipController extends ApiBaseController
         return $this->sendSuccess(null, 'User unfollowed successfully.');
     }
 
+    public function isFollowingUser(Request $request, $userId)
+    {
+
+        if(!$userId){
+            return $this->sendError("User Id is required");
+        }
+
+        $follower = $request->user();
+        $followedUser = User::find($userId);
+
+        if(!$followedUser){
+            return $this->sendError("User not found with given id");
+        }
+
+        return $this->sendSuccess($follower->isFollowing($followedUser), 'checked');
+
+    }
+
 
 
     public function getUserFollowers(Request $request)
