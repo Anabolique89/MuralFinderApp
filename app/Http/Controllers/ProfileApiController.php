@@ -132,23 +132,20 @@ class ProfileApiController extends ApiBaseController
                 return $this->sendError('The image is either null or does not pass the following rules: jpeg, png, jpg, gif, max:2048', JsonResponse::HTTP_BAD_REQUEST);
             }
 
-            $image = $request->file('image');
 
-            if ($image) {
-                // Delete the previous image if it exists
+            if($request->hasFile('image')){
                 if ($profile->profile_image_url) {
                     $existingImagePath = str_replace('/storage', '', $profile->profile_image_url);
                     Storage::disk('public')->delete($existingImagePath);
                 }
 
                 // Upload the new image
-                $path = $this->uploadImage($image, 'uploads/profiles/', 'public');
+                $path = $this->uploadImage($request->file('image'), 'uploads/profiles/', 'public');
 
                 $profile->profile_image_url = $path;
                 $profile->save();
             } else {
-                // No new image uploaded, keep existing path (if applicable)
-                $path = $profile->profile_image_url;
+                $this->sendError("Image is required");
             }
 
             return $this->sendSuccess($path, 'Profile image uploaded successfully');
