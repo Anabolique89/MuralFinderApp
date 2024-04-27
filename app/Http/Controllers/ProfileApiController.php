@@ -118,10 +118,10 @@ class ProfileApiController extends ApiBaseController
     public function uploadProfileImage(Request $request, $id)
     {
         try {
-            $profile = Profile::find($id);
+            $user = User::with('profile')->find($id);
 
-            if (!$profile) {
-                return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
+            if (!$user) {
+                return $this->sendError('user not found', JsonResponse::HTTP_NOT_FOUND);
             }
 
             $validator = Validator::make($request->all(), [
@@ -134,16 +134,16 @@ class ProfileApiController extends ApiBaseController
 
 
             if($request->hasFile('image')){
-                if ($profile->profile_image_url) {
-                    $existingImagePath = str_replace('/storage', '', $profile->profile_image_url);
+                if ($user->profile->profile_image_url) {
+                    $existingImagePath = str_replace('/storage', '', $user->profile->profile_image_url);
                     Storage::disk('public')->delete($existingImagePath);
                 }
 
                 // Upload the new image
                 $path = $this->uploadImage($request->file('image'), 'uploads/profiles/', 'public');
 
-                $profile->profile_image_url = $path;
-                $profile->save();
+                $user->profile->profile_image_url = $path;
+                $user->profile->save();
             } else {
                 $this->sendError("Image is required");
             }
