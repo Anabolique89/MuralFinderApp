@@ -47,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('profiles')->group(function () {
         Route::post('/', [ProfileApiController::class, 'create']);
-        Route::get('{id}', [ProfileApiController::class, 'show']);
         Route::put('{id}', [ProfileApiController::class, 'update']);
         Route::delete('{id}', [ProfileApiController::class, 'destroy']);
 
@@ -115,4 +114,4 @@ Route::group(['prefix' => 'walls'], function () {
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
 Route::get('users/search', [ProfileApiController::class, 'search']);
-Route::get('publicProfile/{id}', [ProfileApiController::class, 'show']);
+Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
