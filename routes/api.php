@@ -115,3 +115,4 @@ Route::group(['prefix' => 'walls'], function () {
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
 Route::get('users/search', [ProfileApiController::class, 'search']);
+Route::get('publicProfile/{id}', [ProfileApiController::class, 'show']);
