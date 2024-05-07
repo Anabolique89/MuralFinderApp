@@ -48,10 +48,13 @@ class ProfileApiController extends ApiBaseController
     public function update(Request $request, $id)
     {
         try {
-            $profile = Profile::find($id);
+            $user = User::with('profile')->find($id);
+            if (!$user) {
+                return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
+            }
 
-            if (!$profile) {
-                return $this->sendError('Profile not found', JsonResponse::HTTP_NOT_FOUND);
+            if ($user->id != auth()->user()->id  ||  auth()->user()->id !== $request->user_id) {
+                return $this->sendError("Cannot update another person's profile");
             }
 
             $validator = Validator::make($request->all(), [
@@ -67,14 +70,20 @@ class ProfileApiController extends ApiBaseController
                 return $this->validationError($validator->errors()->toArray());
             }
 
-            $profile->update($request->all());
+            // Check if the user has a profile, if not, create a new one
+            if (!$user->profile) {
+                $user->profile()->create($request->all());
+            } else {
+                $user->profile->update($request->all());
+            }
 
-            return $this->sendSuccess($profile, "Profile successfully updated");
+            return $this->sendSuccess($user, "Profile successfully updated");
         } catch (\Exception $e) {
             \Log::error('Error updating profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     public function show($id)
     {
@@ -133,7 +142,7 @@ class ProfileApiController extends ApiBaseController
             }
 
 
-            if($request->hasFile('image')){
+            if ($request->hasFile('image')) {
                 if ($user->profile->profile_image_url) {
                     $existingImagePath = str_replace('/storage', '', $user->profile->profile_image_url);
                     Storage::disk('public')->delete($existingImagePath);

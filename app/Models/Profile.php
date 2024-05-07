@@ -16,7 +16,8 @@ class Profile extends Model
         "last_name",
         "bio",
         "dob",
-        "country"
+        "country",
+        "proffession"
     ];
 
     public function user()
