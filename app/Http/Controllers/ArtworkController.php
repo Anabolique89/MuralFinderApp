@@ -18,7 +18,7 @@ class ArtworkController extends ApiBaseController
     public function index(Request $request)
     {
         $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
-        $artworks = Artwork::with('user')
+        $artworks = Artwork::with('user.profile')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->paginate($pageSize);
