@@ -24,7 +24,7 @@ class SocialAuthController extends ApiBaseController
             $existingUser = User::whereEmail($socialUser->getEmail())->first();
 
             if ($existingUser) {
-                
+
                 $token = $existingUser->createToken('authToken')->plainTextToken;
 
                 $existingUser->load('profile');
@@ -47,11 +47,14 @@ class SocialAuthController extends ApiBaseController
                 return redirect()->to($redirectUrl);
             } else {
                 // User does not exist, create a new one
+
+                $nameParts = explode(' ', $socialUser->getName());
+                $username = $nameParts[0];
                 $user = User::create([
                     'name' => $socialUser->getName(),
                     'email' => $socialUser->getEmail(),
                     'provider' => $provider,
-                    'username' => $socialUser->getNickname() ?? $socialUser->getName(),
+                    'username' => $username,
                     'password' => Hash::make('password')
                 ]);
 
