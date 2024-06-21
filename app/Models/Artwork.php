@@ -10,7 +10,7 @@ class Artwork extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['title', 'description', 'image_path', 'user_id'];
+    protected $fillable = ['title', 'description', 'image_path', 'user_id', 'artwork_categry_id'];
 
     public function user()
     {
@@ -27,7 +27,13 @@ class Artwork extends Model
         return $this->hasMany(ArtworkComment::class);
     }
 
-    public function images(){
+    public function images()
+    {
         return $this->hasMany(ArtworkImage::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ArtworkCategory::class, 'artwork_category_id');
     }
 }

@@ -16,14 +16,35 @@ use App\Models\ArtworkComment;
 class ArtworkController extends ApiBaseController
 {
     public function index(Request $request)
-    {
-        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
-        $artworks = Artwork::with('user.profile')
-            ->withCount('likes') // Count the number of likes
-            ->withCount('comments') // Count the number of comments
-            ->paginate($pageSize);
-        return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
+{
+    $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+
+    $artworks = Artwork::with(['category', 'user.profile'])
+        ->withCount('likes')
+        ->withCount('comments')
+        ->paginate($pageSize); // Perform pagination before grouping
+
+    // Grouping by category name using collection methods
+    $groupedArtworks = $artworks->groupBy(function ($artwork) {
+        return $artwork->category->name;
+    });
+
+    // Transform grouped artworks to include pagination information
+    $groupedArtworksWithPagination = [];
+
+    foreach ($groupedArtworks as $category => $items) {
+        $groupedArtworksWithPagination[] = [
+            'category' => $category,
+            'artworks' => $items,
+            'total' => $artworks->total(),
+            'current_page' => $artworks->currentPage(),
+            'last_page' => $artworks->lastPage()
+        ];
     }
+
+    return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
+}
+
 
     public function search(Request $request)
 {
