@@ -10,7 +10,7 @@ class Artwork extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['title', 'description', 'image_path', 'user_id', 'artwork_categry_id'];
+    protected $fillable = ['title', 'description', 'image_path', 'user_id', 'artwork_category_id'];
 
     public function user()
     {

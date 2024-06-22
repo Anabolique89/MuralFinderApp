@@ -85,9 +85,11 @@ class ArtworkController extends ApiBaseController
     public function store(Request $request)
     {
         try {
+            // Validate input including category_id
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
                 'description' => 'required|string',
+                'artwork_category_id' => 'required|exists:artwork_categories,id', // Ensure category_id exists in categories table
             ]);
 
             if ($validator->fails()) {
@@ -97,13 +99,17 @@ class ArtworkController extends ApiBaseController
             $artworkData = $validator->validated();
             $artworkData['user_id'] = Auth::id();
             $artworkData['image_path'] = 'null';
-            $artworkData['artwork_category_id'] = $request->category_id;
 
+            // Log to check if category_id is being set correctly
+            Log::info('Artwork category ID:', ['artwork_category_id' => $artworkData['artwork_category_id']]);
+
+            // Create the artwork
             $artwork = Artwork::create($artworkData);
+
+            $imagePaths = [];
 
             // Handle image upload if files were uploaded
             if ($request->hasFile('images')) {
-                $imagePaths = [];
                 foreach ($request->file('images') as $image) {
                     $imagePath = $this->uploadImage($image, 'artworks', 'public');
                     if (!$imagePath) {
@@ -116,6 +122,7 @@ class ArtworkController extends ApiBaseController
                 $artwork->save();
             }
 
+            $artwork->refresh();
             // Associate the image paths with the artwork
             foreach ($imagePaths as $imagePath) {
                 $artworkImage = new ArtworkImage(['artwork_url' => $imagePath]);
@@ -130,6 +137,7 @@ class ArtworkController extends ApiBaseController
             return $this->sendError('An error occurred while creating artwork', 500);
         }
     }
+
     public function update(Request $request, Artwork $artwork)
     {
 
