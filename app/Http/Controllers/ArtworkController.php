@@ -17,56 +17,56 @@ use App\Models\ArtworkComment;
 class ArtworkController extends ApiBaseController
 {
     public function index(Request $request)
-{
-    $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+    {
+        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
 
-    $artworks = Artwork::with(['category', 'user.profile'])
-        ->withCount('likes')
-        ->withCount('comments')
-        ->paginate($pageSize); // Perform pagination before grouping
+        $artworks = Artwork::with(['category', 'user.profile'])
+            ->withCount('likes')
+            ->withCount('comments')
+            ->paginate($pageSize); // Perform pagination before grouping
 
-    // Grouping by category name using collection methods
-    $groupedArtworks = $artworks->groupBy(function ($artwork) {
-        return $artwork->category ? $artwork->category->name : 'others';
-    });
+        // Grouping by category name using collection methods
+        $groupedArtworks = $artworks->groupBy(function ($artwork) {
+            return $artwork->category ? $artwork->category->name : 'others';
+        });
 
-    // Transform grouped artworks to include pagination information
-    $groupedArtworksWithPagination = [];
+        // Transform grouped artworks to include pagination information
+        $groupedArtworksWithPagination = [];
 
-    foreach ($groupedArtworks as $category => $items) {
-        $groupedArtworksWithPagination[] = [
-            'category' => $category,
-            'artworks' => $items,
-            'total' => $artworks->total(),
-            'current_page' => $artworks->currentPage(),
-            'last_page' => $artworks->lastPage()
-        ];
+        foreach ($groupedArtworks as $category => $items) {
+            $groupedArtworksWithPagination[] = [
+                'category' => $category,
+                'artworks' => $items,
+                'total' => $artworks->total(),
+                'current_page' => $artworks->currentPage(),
+                'last_page' => $artworks->lastPage()
+            ];
+        }
+
+        return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
     }
-
-    return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
-}
 
 
     public function search(Request $request)
-{
-    $query = Artwork::with('category')->query();
+    {
+        $query = Artwork::with('category')->query();
 
-    // Get search query
-    $searchQuery = $request->get('query');
+        // Get search query
+        $searchQuery = $request->get('query');
 
-    if ($searchQuery) {
-        $query->where(function ($query) use ($searchQuery) {
-            $query->where('title', 'like', '%' . $searchQuery . '%')
-                ->orWhere('description', 'like', '%' . $searchQuery . '%');
-        });
+        if ($searchQuery) {
+            $query->where(function ($query) use ($searchQuery) {
+                $query->where('title', 'like', '%' . $searchQuery . '%')
+                    ->orWhere('description', 'like', '%' . $searchQuery . '%');
+            });
+        }
+
+        // Paginate the results
+        $pageSize = $request->get('pageSize', 15);
+        $artworks = $query->paginate($pageSize);
+
+        return $this->sendSuccess($artworks, "Artworks searched");
     }
-
-    // Paginate the results
-    $pageSize = $request->get('pageSize', 15);
-    $artworks = $query->paginate($pageSize);
-
-    return $this->sendSuccess($artworks, "Artworks searched");
-}
 
     public function show($artwork)
     {
@@ -97,24 +97,24 @@ class ArtworkController extends ApiBaseController
             $artworkData = $validator->validated();
             $artworkData['user_id'] = Auth::id();
             $artworkData['image_path'] = 'null';
-            $artworkData['artwork_category_id'] = $request->category_id ?? null;
+            $artworkData['artwork_category_id'] = $request->category_id;
 
-           $artwork = Artwork::create($artworkData);
+            $artwork = Artwork::create($artworkData);
 
-// Handle image upload if files were uploaded
-if ($request->hasFile('images')) {
-    $imagePaths = [];
-    foreach ($request->file('images') as $image) {
-        $imagePath = $this->uploadImage($image, 'artworks', 'public');
-        if (!$imagePath) {
-            return $this->sendError('Failed to upload image');
-        }
-        $imagePaths[] = $imagePath; 
-    }
-    // Update the artwork's image path
-    $artwork->image_path = $imagePaths[0];
-    $artwork->save();
-}
+            // Handle image upload if files were uploaded
+            if ($request->hasFile('images')) {
+                $imagePaths = [];
+                foreach ($request->file('images') as $image) {
+                    $imagePath = $this->uploadImage($image, 'artworks', 'public');
+                    if (!$imagePath) {
+                        return $this->sendError('Failed to upload image');
+                    }
+                    $imagePaths[] = $imagePath;
+                }
+                // Update the artwork's image path
+                $artwork->image_path = $imagePaths[0];
+                $artwork->save();
+            }
 
             // Associate the image paths with the artwork
             foreach ($imagePaths as $imagePath) {
@@ -295,7 +295,8 @@ if ($request->hasFile('images')) {
         }
     }
 
-    public function getCategories(){
+    public function getCategories()
+    {
         return $this->sendSuccess(ArtworkCategory::all(), 'categories fetch');
     }
 
