@@ -27,7 +27,7 @@ class ArtworkController extends ApiBaseController
 
     // Grouping by category name using collection methods
     $groupedArtworks = $artworks->groupBy(function ($artwork) {
-        return $artwork->category->name;
+        return $artwork->category ? $artwork->category->name : 'others';
     });
 
     // Transform grouped artworks to include pagination information
@@ -49,7 +49,7 @@ class ArtworkController extends ApiBaseController
 
     public function search(Request $request)
 {
-    $query = Artwork::query();
+    $query = Artwork::with('category')->query();
 
     // Get search query
     $searchQuery = $request->get('query');
