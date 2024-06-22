@@ -97,6 +97,7 @@ Route::prefix('artworks')->group(function () {
     Route::get('', [ArtworkController::class, 'index'])->name('artworks.index');
     Route::get('{artwork}', [ArtworkController::class, 'show'])->name('artworks.show');
     Route::get('artwork/search', [ArtworkController::class, 'search'])->name('artworks.search'); // Use 'find' or another descriptive prefix
+    Route::get('/categories/fetch', [ArtworkController::class, 'getCategories'])->name('artwork.categories');
 });
 
 Route::prefix('posts')->group(function () {

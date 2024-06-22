@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Artwork;
+use App\Models\ArtworkCategory;
 use App\Models\ArtworkImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -70,7 +71,7 @@ class ArtworkController extends ApiBaseController
     public function show($artwork)
     {
 
-        $artwork = Artwork::with('user')
+        $artwork = Artwork::with('user', 'category')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->find($artwork);
@@ -96,6 +97,7 @@ class ArtworkController extends ApiBaseController
             $artworkData = $validator->validated();
             $artworkData['user_id'] = Auth::id();
             $artworkData['image_path'] = 'null';
+            $artworkData['artwork_category_id'] = $request->category_id ?? null;
 
            $artwork = Artwork::create($artworkData);
 
@@ -159,6 +161,7 @@ if ($request->hasFile('images')) {
             }
 
             unset($data['image']);
+            $data['artwork_category_id'] = $request->category_id ?? null;
 
 
             $artwork->update($data);
@@ -290,6 +293,10 @@ if ($request->hasFile('images')) {
             Log::error('Error adding comment: ' . $e->getMessage());
             return $this->sendError('An error occurred while adding comment', 500);
         }
+    }
+
+    public function getCategories(){
+        return $this->sendSuccess(ArtworkCategory::all(), 'categories fetch');
     }
 
 }
