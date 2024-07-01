@@ -48,29 +48,28 @@ class ArtworkController extends ApiBaseController
 
 
     public function search(Request $request)
-    {
+{
+    try {
         $query = Artwork::with(['category', 'user']);
         $searchQuery = $request->get('query');
 
         if ($searchQuery) {
             $query->where(function ($query) use ($searchQuery) {
                 $query->where('title', 'like', '%' . $searchQuery . '%')
-                    ->orWhere('description', 'like', '%' . $searchQuery . '%')
-                    ->orWhereHas('user', function ($query) use ($searchQuery) {
-                        $query->where('name', 'like', '%' . $searchQuery . '%');
-                    })
-                    ->orWhereHas('category', function ($query) use ($searchQuery) {
-                        $query->where('name', 'like', '%' . $searchQuery . '%');
-                    });
+                      ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                      ->orWhereHas('user', function ($query) use ($searchQuery) {
+                          $query->where('username', 'like', '%' . $searchQuery . '%');
+                      })
+                      ->orWhereHas('category', function ($query) use ($searchQuery) {
+                          $query->where('name', 'like', '%' . $searchQuery . '%');
+                      });
             });
         }
 
         $pageSize = $request->get('pageSize', 15);
         $artworks = $query->paginate($pageSize);
 
-        $groupedArtworks = $artworks->getCollection()->groupBy(function ($artwork) {
-            return $artwork->category->name;
-        });
+        $groupedArtworks = $artworks->groupBy('category.title');
 
         $groupedArtworksWithPagination = [];
         foreach ($groupedArtworks as $category => $items) {
@@ -84,8 +83,16 @@ class ArtworkController extends ApiBaseController
         }
 
         return $this->sendSuccess($groupedArtworksWithPagination, "Artworks searched");
+    } catch (\Exception $e) {
+        Log::error('Error in search function: ' . $e->getMessage());
+        Log::error('Trace: ' . $e->getTraceAsString());
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while searching for artworks.'
+        ], 500);
     }
-
+}
+    
 
     public function show($artwork)
     {
