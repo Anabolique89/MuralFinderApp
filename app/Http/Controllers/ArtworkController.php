@@ -48,25 +48,44 @@ class ArtworkController extends ApiBaseController
 
 
     public function search(Request $request)
-{
-    $query = Artwork::with('category');
+    {
+        $query = Artwork::with(['category', 'user']);
+        $searchQuery = $request->get('query');
 
-    // Get search query
-    $searchQuery = $request->get('query');
+        if ($searchQuery) {
+            $query->where(function ($query) use ($searchQuery) {
+                $query->where('title', 'like', '%' . $searchQuery . '%')
+                    ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                    ->orWhereHas('user', function ($query) use ($searchQuery) {
+                        $query->where('name', 'like', '%' . $searchQuery . '%');
+                    })
+                    ->orWhereHas('category', function ($query) use ($searchQuery) {
+                        $query->where('name', 'like', '%' . $searchQuery . '%');
+                    });
+            });
+        }
 
-    if ($searchQuery) {
-        $query->where(function ($query) use ($searchQuery) {
-            $query->where('title', 'like', '%' . $searchQuery . '%')
-                  ->orWhere('description', 'like', '%' . $searchQuery . '%');
+        $pageSize = $request->get('pageSize', 15);
+        $artworks = $query->paginate($pageSize);
+
+        $groupedArtworks = $artworks->getCollection()->groupBy(function ($artwork) {
+            return $artwork->category->name;
         });
+
+        $groupedArtworksWithPagination = [];
+        foreach ($groupedArtworks as $category => $items) {
+            $groupedArtworksWithPagination[] = [
+                'category' => $category,
+                'artworks' => $items,
+                'total' => $artworks->total(),
+                'current_page' => $artworks->currentPage(),
+                'last_page' => $artworks->lastPage()
+            ];
+        }
+
+        return $this->sendSuccess($groupedArtworksWithPagination, "Artworks searched");
     }
 
-    // Paginate the results
-    $pageSize = $request->get('pageSize', 15);
-    $artworks = $query->paginate($pageSize);
-
-    return $this->sendSuccess($artworks, "Artworks searched");
-}
 
     public function show($artwork)
     {
