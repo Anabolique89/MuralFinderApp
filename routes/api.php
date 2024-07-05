@@ -72,7 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{artwork}/unlike', [ArtworkController::class, 'unlike']);
         Route::post('/{artwork}/like', [ArtworkController::class, 'like']);
         Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
-        Route::get('/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
     });
 
     Route::prefix('posts')->group(function () {
@@ -119,3 +118,5 @@ Route::group(['prefix' => 'walls'], function () {
 Route::post('/contact', [ContactController::class, 'contactUs']);
 Route::get('users/search', [ProfileApiController::class, 'search']);
 Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
+Route::get('/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
+
