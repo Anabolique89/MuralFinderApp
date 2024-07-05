@@ -72,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{artwork}/unlike', [ArtworkController::class, 'unlike']);
         Route::post('/{artwork}/like', [ArtworkController::class, 'like']);
         Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
+        Route::get('/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
     });
 
     Route::prefix('posts')->group(function () {
