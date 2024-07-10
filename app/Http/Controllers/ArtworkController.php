@@ -141,11 +141,12 @@ class ArtworkController extends ApiBaseController
     public function store(Request $request)
     {
         try {
-            // Validate input including category_id
+            // Validate input including category_id and image
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
                 'description' => 'required|string',
-                'artwork_category_id' => 'required|exists:artwork_categories,id', // Ensure category_id exists in categories table
+                'artwork_category_id' => 'required|exists:artwork_categories,id', 
+                'images.*' => 'nullable|image|max:4096', 
             ]);
 
             if ($validator->fails()) {
@@ -193,6 +194,7 @@ class ArtworkController extends ApiBaseController
             return $this->sendError('An error occurred while creating artwork', 500);
         }
     }
+
 
     public function update(Request $request, Artwork $artwork)
     {

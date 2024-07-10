@@ -53,7 +53,7 @@ class ProfileApiController extends ApiBaseController
                 return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
             }
 
-            if ($user->id != auth()->user()->id  ||  auth()->user()->id !== $request->user_id) {
+            if ($user->id != auth()->user()->id || auth()->user()->id !== $request->user_id) {
                 return $this->sendError("Cannot update another person's profile");
             }
 
@@ -109,6 +109,7 @@ class ProfileApiController extends ApiBaseController
     public function destroy($id)
     {
         try {
+
             $profile = Profile::find($id);
 
             if (!$profile) {
@@ -187,6 +188,41 @@ class ProfileApiController extends ApiBaseController
         $users = $query->with('profile')->paginate(15);
         return $this->sendSuccess($users, 'users fetched');
     }
+
+    public function deleteUser($id)
+    {
+        try {
+            $user = User::with(['profile', 'followers', 'followings'])->find($id);
+
+            if (!$user) {
+                return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
+            }
+
+            // Delete associated profile
+            if ($user->profile) {
+                $user->profile->delete();
+            }
+
+            // Delete followers relationships
+            foreach ($user->followers as $follower) {
+                $follower->delete();
+            }
+
+            // Delete followings relationships
+            foreach ($user->followings as $following) {
+                $following->delete();
+            }
+
+            // Delete the user
+            $user->delete();
+
+            return $this->sendSuccess(null, 'User account has been deleted');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting user account: ' . $e->getMessage());
+            return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }
