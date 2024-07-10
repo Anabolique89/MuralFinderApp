@@ -190,72 +190,24 @@ class ProfileApiController extends ApiBaseController
     }
 
     public function deleteUser($id)
-    {
-        try {
-            $user = User::with(['profile', 'followers', 'followings', 'artworks.images', 'artworks.likes', 'artworks.comments', 'posts.images', 'posts.likes', 'posts.comments'])->find($id);
+{
+    try {
+        $user = User::find($id);
 
-            if (!$user) {
-                return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
-            }
-
-            // Delete associated profile
-            if ($user->profile) {
-                $user->profile->delete();
-            }
-
-            // Delete followers relationships
-            foreach ($user->followers as $follower) {
-                $follower->delete();
-            }
-
-            // Delete followings relationships
-            foreach ($user->followings as $following) {
-                $following->delete();
-            }
-
-            // Delete posts and their relationships
-            foreach ($user->posts as $post) {
-                foreach ($post->images as $image) {
-                    $image->delete();
-                }
-
-                foreach ($post->likes as $like) {
-                    $like->delete();
-                }
-
-                foreach ($post->comments as $comment) {
-                    $comment->delete();
-                }
-
-                $post->delete();
-            }
-
-            // Delete artworks and their relationships
-            foreach ($user->artworks as $artwork) {
-                foreach ($artwork->images as $image) {
-                    $image->delete();
-                }
-
-                foreach ($artwork->likes as $like) {
-                    $like->delete();
-                }
-
-                foreach ($artwork->comments as $comment) {
-                    $comment->delete();
-                }
-
-                $artwork->delete();
-            }
-
-            // Delete the user
-            $user->delete();
-
-            return $this->sendSuccess(null, 'User account and all related data have been deleted');
-        } catch (\Exception $e) {
-            \Log::error('Error deleting user account: ' . $e->getMessage());
-            return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$user) {
+            return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
         }
+
+        // Delete the user (this will automatically delete related records due to ON DELETE CASCADE)
+        $user->delete();
+
+        return $this->sendSuccess(null, 'User account and all related data have been deleted');
+    } catch (\Exception $e) {
+        \Log::error('Error deleting user account: ' . $e->getMessage());
+        return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
+
 
 
 
