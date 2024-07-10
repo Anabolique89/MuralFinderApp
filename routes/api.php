@@ -46,7 +46,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
  */
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', LogoutApiController::class);
-    Route::post('delete/user/{id}', [ProfileApiController::class, 'deleteUser']);
+    Route::delete('delete/user/{id}', [ProfileApiController::class, 'deleteUser']);
 
     Route::prefix('profiles')->group(function () {
         Route::post('/', [ProfileApiController::class, 'create']);
