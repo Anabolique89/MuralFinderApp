@@ -18,7 +18,7 @@ class CommunityPostController extends ApiBaseController
     public function index(Request $request)
     {
         $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
-        $posts = Post::with('user')
+        $posts = Post::with('user.profile')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->paginate($pageSize);
@@ -45,7 +45,7 @@ class CommunityPostController extends ApiBaseController
     public function show($post)
     {
 
-        $post = Post::with('user')
+        $post = Post::with('user.profile')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->find($post);
@@ -59,7 +59,7 @@ class CommunityPostController extends ApiBaseController
     public function postsByUser($userId)
 {
     try {
-        $userPosts = Post::with('user')
+        $userPosts = Post::with('user.profile')
             ->withCount('likes')
             ->withCount('comments')
             ->where('user_id', $userId)
