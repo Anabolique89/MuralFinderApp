@@ -79,4 +79,12 @@ class User extends Authenticatable
         return $this->followings()->where('follower_id', $this->id)->where('following_id', $user->id)->delete();
     }
 
+    public function artworks(){
+        return $this->hasMany(Artwork::class);
+    }
+
+    public function posts(){
+        return $this->hasMany(Post::class);
+    }
+
 }

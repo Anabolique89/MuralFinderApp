@@ -192,7 +192,7 @@ class ProfileApiController extends ApiBaseController
     public function deleteUser($id)
     {
         try {
-            $user = User::with(['profile', 'followers', 'followings'])->find($id);
+            $user = User::with(['profile', 'followers', 'followings', 'artworks', 'posts'])->find($id);
 
             if (!$user) {
                 return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
@@ -211,6 +211,14 @@ class ProfileApiController extends ApiBaseController
             // Delete followings relationships
             foreach ($user->followings as $following) {
                 $following->delete();
+            }
+
+            foreach($user->posts as $post){
+                $post->delete();
+            }
+
+            foreach($user->artworks as $artwork){
+                $artwork->delete();
             }
 
             // Delete the user
