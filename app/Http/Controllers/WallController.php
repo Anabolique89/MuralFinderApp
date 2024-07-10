@@ -33,7 +33,7 @@ class WallController extends ApiBaseController
         try {
             // Validate the request
             $validator = Validator::make($request->all(), [
-                'location_text' => 'required|string',
+                'location_text' => 'required|string|unique:walls,location_text',
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
                 'is_verified' => 'required|boolean',
