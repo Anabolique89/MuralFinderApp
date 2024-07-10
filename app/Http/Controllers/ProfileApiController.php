@@ -192,7 +192,7 @@ class ProfileApiController extends ApiBaseController
     public function deleteUser($id)
     {
         try {
-            $user = User::with(['profile', 'followers', 'followings', 'artworks', 'posts'])->find($id);
+            $user = User::with(['profile', 'followers', 'followings', 'artworks.images', 'artworks.likes', 'artworks.comments', 'posts.images', 'posts.likes', 'posts.comments'])->find($id);
 
             if (!$user) {
                 return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
@@ -213,23 +213,50 @@ class ProfileApiController extends ApiBaseController
                 $following->delete();
             }
 
-            foreach($user->posts as $post){
+            // Delete posts and their relationships
+            foreach ($user->posts as $post) {
+                foreach ($post->images as $image) {
+                    $image->delete();
+                }
+
+                foreach ($post->likes as $like) {
+                    $like->delete();
+                }
+
+                foreach ($post->comments as $comment) {
+                    $comment->delete();
+                }
+
                 $post->delete();
             }
 
-            foreach($user->artworks as $artwork){
+            // Delete artworks and their relationships
+            foreach ($user->artworks as $artwork) {
+                foreach ($artwork->images as $image) {
+                    $image->delete();
+                }
+
+                foreach ($artwork->likes as $like) {
+                    $like->delete();
+                }
+
+                foreach ($artwork->comments as $comment) {
+                    $comment->delete();
+                }
+
                 $artwork->delete();
             }
 
             // Delete the user
             $user->delete();
 
-            return $this->sendSuccess(null, 'User account has been deleted');
+            return $this->sendSuccess(null, 'User account and all related data have been deleted');
         } catch (\Exception $e) {
             \Log::error('Error deleting user account: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 
