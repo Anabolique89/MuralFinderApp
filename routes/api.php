@@ -6,13 +6,13 @@ use App\Http\Controllers\Auth\LogoutApiController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
-use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\WallController;
+use App\Http\Controllers\Admin\DashbordStatisticController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,8 +36,7 @@ Route::post('register', RegisterApiController::class);
 Route::get('/verify-email/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
 Route::post('/email/verification/resend', ResendEmailVerificationController::class)->name('email.send');
 Route::post('login', LoginApiController::class);
-Route::get('auth/{provider}', [SocialAuthController::class, 'redirectToProvider']);
-Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+
 Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
 
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
@@ -46,10 +45,10 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
  */
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', LogoutApiController::class);
-    Route::delete('delete/user/{id}', [ProfileApiController::class, 'deleteUser']);
 
     Route::prefix('profiles')->group(function () {
         Route::post('/', [ProfileApiController::class, 'create']);
+        Route::get('{id}', [ProfileApiController::class, 'show']);
         Route::put('{id}', [ProfileApiController::class, 'update']);
         Route::delete('{id}', [ProfileApiController::class, 'destroy']);
 
@@ -61,8 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('unfollow', [FellowshipController::class, 'unfollowUser']);
         Route::get('followers', [FellowshipController::class, 'getUserFollowers']);
         Route::get('followings', [FellowshipController::class, 'getUserFollowings']);
-        Route::get('isFollowing/{userId}', [FellowshipController::class, 'isFollowingUser']);
-
     });
 
     Route::prefix('artworks')->group(function () {
@@ -98,7 +95,6 @@ Route::prefix('artworks')->group(function () {
     Route::get('', [ArtworkController::class, 'index'])->name('artworks.index');
     Route::get('{artwork}', [ArtworkController::class, 'show'])->name('artworks.show');
     Route::get('artwork/search', [ArtworkController::class, 'search'])->name('artworks.search'); // Use 'find' or another descriptive prefix
-    Route::get('/categories/fetch', [ArtworkController::class, 'getCategories'])->name('artwork.categories');
 });
 
 Route::prefix('posts')->group(function () {
@@ -116,8 +112,10 @@ Route::group(['prefix' => 'walls'], function () {
 });
 
 
+Route::group(['prefix' => 'admin'], function () {
+    Route::get('statistics', [DashbordStatisticController::class, 'getStatistics']);
+    Route::get('artworks', [DashbordStatisticController::class, 'getArtworksStatistics']);
+});
+
 Route::post('/contact', [ContactController::class, 'contactUs']);
 Route::get('users/search', [ProfileApiController::class, 'search']);
-Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
-Route::get('artworks/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
-
