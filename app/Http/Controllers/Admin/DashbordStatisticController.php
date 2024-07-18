@@ -27,24 +27,25 @@ class DashbordStatisticController extends ApiBaseController
     }
 
     public function getArtworksStatistics(Request $request)
-{
-    $page = $request->input('page', 1);
-    $perPage = 10; // Set the number of artworks per page
+    {
+        $page = $request->input('page', 1);
+        $perPage = 10; // Set the number of artworks per page
 
-    $artworks = Artwork::with('user', 'category', 'likes', 'comments')
-        ->withCount(['likes', 'comments'])
-        ->paginate($perPage, ['*'], 'page', $page);
+        $artworks = Artwork::with('user', 'category', 'likes', 'comments')
+            ->withCount(['likes', 'comments'])
+            ->paginate($perPage, ['*'], 'page', $page);
+    
+        $data = [
+            'artworks' => $artworks->items(),
+            'artworks_count' => $artworks->total(),
+            'total_likes' => $artworks->getCollection()->sum('likes_count'),
+            'total_comments' => $artworks->getCollection()->sum('comments_count'),
+            'current_page' => $artworks->currentPage(),
+            'last_page' => $artworks->lastPage(),
+            'per_page' => $artworks->perPage(),
+        ];
 
-    $data = [
-        'artworks' => $artworks->items(),
-        'artworks_count' => $artworks->total(),
-        'total_likes' => $artworks->sum('likes_count'),
-        'total_comments' => $artworks->sum('comments_count'),
-        'currentPage' => $artworks->currentPage(),
-        'lastPage' => $artworks->lastPage(),
-        'perPage' => $artworks->perPage(),
-    ];
+        return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
+    }
 
-    return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
-}
 }
