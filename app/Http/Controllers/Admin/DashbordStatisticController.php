@@ -26,10 +26,23 @@ class DashbordStatisticController extends ApiBaseController
         return $this->sendSuccess($data, 'Statistics retrieved successfully');
     }
 
-    public function getArtworksStatistics()
-    {
-        $artworks = Artwork::with('user', 'category')->get();
-        $data = compact('artworks');
-        return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
-    }
+    public function getArtworksStatistics(Request $request)
+{
+    $page = $request->input('page', 1);
+    $perPage = 10; // Set the number of artworks per page
+
+    $artworks = Artwork::with('user', 'category', 'likes', 'comments')
+        ->withCount(['likes', 'comments'])
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    $data = [
+        'artworks' => $artworks->items(),
+        'total' => $artworks->total(),
+        'currentPage' => $artworks->currentPage(),
+        'lastPage' => $artworks->lastPage(),
+        'perPage' => $artworks->perPage(),
+    ];
+
+    return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
+}
 }
