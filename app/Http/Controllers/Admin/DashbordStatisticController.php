@@ -34,12 +34,14 @@ class DashbordStatisticController extends ApiBaseController
         $artworks = Artwork::with('user', 'category', 'likes', 'comments')
             ->withCount(['likes', 'comments'])
             ->paginate($perPage, ['*'], 'page', $page);
-    
+        $wallsCount = Wall::count();
+
         $data = [
+            'wallsCount' => $wallsCount,
             'artworks' => $artworks->items(),
-            'artworks_count' => $artworks->total(),
-            'total_likes' => $artworks->getCollection()->sum('likes_count'),
-            'total_comments' => $artworks->getCollection()->sum('comments_count'),
+            'artworksCount' => $artworks->total(),
+            'likesCount' => $artworks->getCollection()->sum('likes_count'),
+            'commentsCount' => $artworks->getCollection()->sum('comments_count'),
             'current_page' => $artworks->currentPage(),
             'last_page' => $artworks->lastPage(),
             'per_page' => $artworks->perPage(),
