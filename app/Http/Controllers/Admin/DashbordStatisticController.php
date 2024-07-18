@@ -37,7 +37,9 @@ class DashbordStatisticController extends ApiBaseController
 
     $data = [
         'artworks' => $artworks->items(),
-        'total' => $artworks->total(),
+        'artworks_count' => $artworks->total(),
+        'total_likes' => $artworks->sum('likes_count'),
+        'total_comments' => $artworks->sum('comments_count'),
         'currentPage' => $artworks->currentPage(),
         'lastPage' => $artworks->lastPage(),
         'perPage' => $artworks->perPage(),
