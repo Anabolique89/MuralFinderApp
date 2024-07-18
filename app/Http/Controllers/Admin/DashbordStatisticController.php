@@ -28,7 +28,7 @@ class DashbordStatisticController extends ApiBaseController
 
     public function getArtworksStatistics()
     {
-        $artworks = Artwork::with('user')->get();
+        $artworks = Artwork::with('user', 'category')->get();
         $data = compact('artworks');
         return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
     }
