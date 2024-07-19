@@ -81,12 +81,13 @@ class DashboardStatisticController extends ApiBaseController
         $wallsCount = Wall::count();
         $deletedCount = Wall::onlyTrashed()->count();
 
-        return [
+        $data =  [
             'verified' => $verified,
             'unverified' => $unverified,
             'wallsCount' => $wallsCount,
             'deletedCount' => $deletedCount,
         ];
+        return $this->sendSuccess($data, 'Wall statistics retrieved successfully');
     }
 
     private function getWalls(Request $request){
