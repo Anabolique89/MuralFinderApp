@@ -117,6 +117,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('statistics', [DashboardStatisticController::class, 'getStatistics']);
     Route::get('statistics/artworks', [DashboardStatisticController::class, 'getArtworksStatistics']);
     Route::get('statistics/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
+    Route::get('statistics/walls', [DashboardStatisticController::class, 'getWallsStatistics']);
 });
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
