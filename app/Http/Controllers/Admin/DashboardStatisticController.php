@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Base\ApiBaseController;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Artwork;
 use App\Models\Post;
