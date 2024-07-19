@@ -94,8 +94,7 @@ class DashboardStatisticController extends ApiBaseController
         $page = $request->input('page', 1);
         $perPage = 10;
 
-        $walls = Wall::with('user', 'likes', 'comments')
-            ->withCount(['likes', 'comments'])
+        $walls = Wall::with('addedBy')
             ->paginate($perPage, ['*'], 'page', $page);
 
         return $this->sendSuccess($walls, 'Walls retrieved successfully');

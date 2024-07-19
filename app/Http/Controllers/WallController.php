@@ -20,7 +20,7 @@ class WallController extends ApiBaseController
     public function index(Request $request)
     {
         $pageSize = $request->input('pageSize', 10);
-        $walls = Wall::paginate($pageSize);
+        $walls = Wall::with('addedBy')->paginate($pageSize);
         return $this->sendSuccess($walls);
     }
 
