@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Wall;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Auth;
 
@@ -13,7 +15,7 @@ class WallController extends ApiBaseController
     /**
      * Display a listing of the walls.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
@@ -22,12 +24,6 @@ class WallController extends ApiBaseController
         return $this->sendSuccess($walls);
     }
 
-    /**
-     * Store a newly created wall in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try {
@@ -70,7 +66,7 @@ class WallController extends ApiBaseController
      * Display the specified wall.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function show($id)
     {
@@ -81,11 +77,11 @@ class WallController extends ApiBaseController
     /**
      * Update the specified wall in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
@@ -125,9 +121,9 @@ class WallController extends ApiBaseController
      * Remove the specified wall from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $wall = Wall::findOrFail($id);
 
@@ -145,9 +141,9 @@ class WallController extends ApiBaseController
      * Verify the specified wall.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function verifyWall($id)
+    public function verifyWall($id): JsonResponse
     {
         $wall = Wall::findOrFail($id);
 
@@ -157,7 +153,7 @@ class WallController extends ApiBaseController
         return $this->sendSuccess($wall, 'Wall verified successfully.');
     }
 
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
         $query = Wall::query();
 

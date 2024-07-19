@@ -73,4 +73,31 @@ class DashboardStatisticController extends ApiBaseController
 
         return $this->sendSuccess($data, 'Posts statistics retrieved successfully');
     }
+
+    public function getWallsStatistics()
+    {
+        $verified = Wall::where('is_verified', true)->count();
+        $unverified = Wall::where('is_verified', false)->count();
+        $wallsCount = Wall::count();
+        $deletedCount = Wall::onlyTrashed()->count();
+
+        return [
+            'verified' => $verified,
+            'unverified' => $unverified,
+            'wallsCount' => $wallsCount,
+            'deletedCount' => $deletedCount,
+        ];
+    }
+
+    private function getWalls(Request $request){
+        $page = $request->input('page', 1);
+        $perPage = 10;
+
+        $walls = Wall::with('user', 'likes', 'comments')
+            ->withCount(['likes', 'comments'])
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return $this->sendSuccess($walls, 'Walls retrieved successfully');
+    }
+
 }

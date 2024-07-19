@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Wall extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'location_text',
@@ -25,7 +26,7 @@ class Wall extends Model
     {
         return $this->belongsToMany(Artwork::class);
     }
-    
+
     /**
      * Get the user who added the wall.
      */
