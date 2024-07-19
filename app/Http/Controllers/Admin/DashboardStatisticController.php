@@ -10,7 +10,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Wall;
 
-class DashbordStatisticController extends ApiBaseController
+class DashboardStatisticController extends ApiBaseController
 {
     public function getStatistics()
     {
@@ -28,28 +28,50 @@ class DashbordStatisticController extends ApiBaseController
 
     public function getArtworksStatistics(Request $request)
     {
-        $page = $request->input('page', 1);
-        $perPage = 10; // Set the number of artworks per page
-
         $artworks = Artwork::with('user', 'category', 'likes', 'comments')
             ->withCount(['likes', 'comments'])
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->get();
         $wallsCount = Wall::count();
         $deletedArtworks = Artwork::onlyTrashed()->count();
 
         $data = [
             'wallsCount' => $wallsCount,
-            'artworks' => $artworks->items(),
+            'artworks' => $artworks,
             'deletedArtworks' => $deletedArtworks,
-            'artworksCount' => $artworks->total(),
-            'likesCount' => $artworks->getCollection()->sum('likes_count'),
-            'commentsCount' => $artworks->getCollection()->sum('comments_count'),
-            'current_page' => $artworks->currentPage(),
-            'last_page' => $artworks->lastPage(),
-            'per_page' => $artworks->perPage(),
+            'artworksCount' => $artworks->count(),
+            'likesCount' => $artworks->sum('likes_count'),
+            'commentsCount' => $artworks->sum('comments_count')
         ];
 
         return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
     }
 
+    public function getPosts(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $perPage = 10; // Set the number of posts per page
+
+        $posts = Post::with('user', 'likes', 'comments')
+            ->withCount(['likes', 'comments'])
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return $this->sendSuccess($posts, 'Posts retrieved successfully');
+    }
+
+    public function getPostsStatistics()
+    {
+        $posts = Post::with('likes', 'comments')
+            ->withCount(['likes', 'comments'])
+            ->get();
+        $deletedPosts = Post::onlyTrashed()->count();
+
+        $data = [
+            'postsCount' => $posts->count(),
+            'likesCount' => $posts->sum('likes_count'),
+            'commentsCount' => $posts->sum('comments_count'),
+            'deletedPosts' => $deletedPosts,
+        ];
+
+        return $this->sendSuccess($data, 'Posts statistics retrieved successfully');
+    }
 }

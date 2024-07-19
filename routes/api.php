@@ -12,7 +12,7 @@ use App\Http\Controllers\FellowshipController;
 use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\WallController;
-use App\Http\Controllers\Admin\DashbordStatisticController;
+use App\Http\Controllers\Admin\DashboardStatisticController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -114,8 +114,9 @@ Route::group(['prefix' => 'walls'], function () {
 
 
 Route::group(['prefix' => 'admin'], function () {
-    Route::get('statistics', [DashbordStatisticController::class, 'getStatistics']);
-    Route::get('statistics/artworks', [DashbordStatisticController::class, 'getArtworksStatistics']);
+    Route::get('statistics', [DashboardStatisticController::class, 'getStatistics']);
+    Route::get('statistics/artworks', [DashboardStatisticController::class, 'getArtworksStatistics']);
+    Route::get('statistics/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
 });
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
