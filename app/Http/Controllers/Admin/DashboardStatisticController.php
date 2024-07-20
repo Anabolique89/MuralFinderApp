@@ -100,11 +100,20 @@ class DashboardStatisticController extends ApiBaseController
 
         return $this->sendSuccess($walls, 'Walls retrieved successfully');
     }
-    public function getUserStatistics()
+    public function getUserStatistics(Request $request)
     {
-        $users = User::with('profile')->withCount(['posts', 'artworks', 'followers', 'followings'])->get();
-        $totalUsers = $users->count();
+        // Set the number of users per page
+        $perPage = 10;
 
+        // Paginate the users
+        $users = User::with('profile')
+            ->withCount(['posts', 'artworks', 'followers', 'followings'])
+            ->paginate($perPage);
+
+        // Total number of users
+        $totalUsers = $users->total();
+
+        // Map user statistics
         $userStats = $users->map(function($user) {
             return [
                 'profile' => $user->profile,
@@ -118,13 +127,18 @@ class DashboardStatisticController extends ApiBaseController
             ];
         });
 
+        // Prepare the data with pagination details
         $data = [
             'totalUsers' => $totalUsers,
-            'userStatistics' => $userStats
+            'currentPage' => $users->currentPage(),
+            'lastPage' => $users->lastPage(),
+            'perPage' => $users->perPage(),
+            'userStatistics' => $userStats->items()
         ];
 
         return $this->sendSuccess($data, 'User statistics retrieved successfully');
     }
+
 
 
 
