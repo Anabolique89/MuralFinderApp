@@ -109,6 +109,7 @@ class DashboardStatisticController extends ApiBaseController
             return [
                 'profile' => $user->profile,
                 'username' => $user->username,
+                'role' => $user->role,
                 'email' => $user->email,
                 'postsCount' => $user->posts_count,
                 'artworksCount' => $user->artworks_count,
