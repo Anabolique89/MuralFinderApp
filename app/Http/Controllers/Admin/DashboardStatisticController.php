@@ -81,7 +81,7 @@ class DashboardStatisticController extends ApiBaseController
         $wallsCount = Wall::count();
         $deletedCount = Wall::onlyTrashed()->count();
 
-        $data =  [
+        $data = [
             'verified' => $verified,
             'unverified' => $unverified,
             'wallsCount' => $wallsCount,
@@ -90,7 +90,8 @@ class DashboardStatisticController extends ApiBaseController
         return $this->sendSuccess($data, 'Wall statistics retrieved successfully');
     }
 
-    private function getWalls(Request $request){
+    private function getWalls(Request $request)
+    {
         $page = $request->input('page', 1);
         $perPage = 10;
 
@@ -99,5 +100,30 @@ class DashboardStatisticController extends ApiBaseController
 
         return $this->sendSuccess($walls, 'Walls retrieved successfully');
     }
+    public function getUserStatistics()
+    {
+        $users = User::withCount(['posts', 'artworks', 'followers', 'followings'])->get();
+        $totalUsers = $users->count();
+
+        $userStats = $users->map(function($user) {
+            return [
+                'username' => $user->username,
+                'email' => $user->email,
+                'postsCount' => $user->posts_count,
+                'artworksCount' => $user->artworks_count,
+                'followersCount' => $user->followers_count,
+                'followingsCount' => $user->followings_count,
+            ];
+        });
+
+        $data = [
+            'totalUsers' => $totalUsers,
+            'userStatistics' => $userStats
+        ];
+
+        return $this->sendSuccess($data, 'User statistics retrieved successfully');
+    }
+
+
 
 }

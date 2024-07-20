@@ -113,11 +113,12 @@ Route::group(['prefix' => 'walls'], function () {
 });
 
 
-Route::group(['prefix' => 'admin'], function () {
-    Route::get('statistics', [DashboardStatisticController::class, 'getStatistics']);
-    Route::get('statistics/artworks', [DashboardStatisticController::class, 'getArtworksStatistics']);
-    Route::get('statistics/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
-    Route::get('statistics/walls', [DashboardStatisticController::class, 'getWallsStatistics']);
+Route::group(['prefix' => 'admin/statistics'], function () {
+    Route::get('', [DashboardStatisticController::class, 'getStatistics']);
+    Route::get('/artworks', [DashboardStatisticController::class, 'getArtworksStatistics']);
+    Route::get('/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
+    Route::get('/walls', [DashboardStatisticController::class, 'getWallsStatistics']);
+    Route::get('/users', [DashboardStatisticController::class, 'getUserStatistics']);
 });
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
