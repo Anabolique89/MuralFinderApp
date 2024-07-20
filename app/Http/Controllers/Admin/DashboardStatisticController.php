@@ -25,25 +25,33 @@ class DashboardStatisticController extends ApiBaseController
         return $this->sendSuccess($data, 'Statistics retrieved successfully');
     }
 
-    public function getArtworksStatistics(Request $request)
+    public function getArtworksStatistics(Request $request): \Illuminate\Http\JsonResponse
     {
+        $perPage = 10;
+
+        // Paginate the artworks
         $artworks = Artwork::with('user', 'category', 'likes', 'comments')
             ->withCount(['likes', 'comments'])
-            ->get();
+            ->paginate($perPage);
+
         $wallsCount = Wall::count();
         $deletedArtworks = Artwork::onlyTrashed()->count();
 
         $data = [
             'wallsCount' => $wallsCount,
-            'artworks' => $artworks,
+            'artworks' => $artworks->items(),
             'deletedArtworks' => $deletedArtworks,
-            'artworksCount' => $artworks->count(),
+            'artworksCount' => $artworks->total(),
             'likesCount' => $artworks->sum('likes_count'),
-            'commentsCount' => $artworks->sum('comments_count')
+            'commentsCount' => $artworks->sum('comments_count'),
+            'currentPage' => $artworks->currentPage(),
+            'lastPage' => $artworks->lastPage(),
+            'perPage' => $artworks->perPage(),
         ];
 
         return $this->sendSuccess($data, 'Artworks statistics retrieved successfully');
     }
+
 
     public function getPosts(Request $request)
     {
