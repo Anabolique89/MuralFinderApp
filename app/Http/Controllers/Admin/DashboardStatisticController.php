@@ -110,9 +110,6 @@ class DashboardStatisticController extends ApiBaseController
             ->withCount(['posts', 'artworks', 'followers', 'followings'])
             ->paginate($perPage);
 
-        // Total number of users
-        $totalUsers = $users->total();
-
         // Map user statistics
         $userStats = $users->map(function($user) {
             return [
@@ -129,15 +126,16 @@ class DashboardStatisticController extends ApiBaseController
 
         // Prepare the data with pagination details
         $data = [
-            'totalUsers' => $totalUsers,
+            'totalUsers' => $users->total(),
             'currentPage' => $users->currentPage(),
             'lastPage' => $users->lastPage(),
             'perPage' => $users->perPage(),
-            'userStatistics' => $userStats->items()
+            'userStatistics' => $userStats->toArray()
         ];
 
         return $this->sendSuccess($data, 'User statistics retrieved successfully');
     }
+
 
 
 
