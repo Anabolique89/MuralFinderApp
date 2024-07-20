@@ -102,11 +102,12 @@ class DashboardStatisticController extends ApiBaseController
     }
     public function getUserStatistics()
     {
-        $users = User::withCount(['posts', 'artworks', 'followers', 'followings'])->get();
+        $users = User::with('profile')->withCount(['posts', 'artworks', 'followers', 'followings'])->get();
         $totalUsers = $users->count();
 
         $userStats = $users->map(function($user) {
             return [
+                'profile' => $user->profile,
                 'username' => $user->username,
                 'email' => $user->email,
                 'postsCount' => $user->posts_count,
