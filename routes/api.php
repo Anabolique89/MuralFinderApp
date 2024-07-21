@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutApiController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterApiController;
 use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FellowshipController;
@@ -36,6 +37,7 @@ Route::post('register', RegisterApiController::class);
 Route::get('/verify-email/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
 Route::post('/email/verification/resend', ResendEmailVerificationController::class)->name('email.send');
 Route::post('login', LoginApiController::class);
+Route::post('auth/{provider}', [SocialAuthController::class, 'redirectToProvider']);
 
 Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
 
