@@ -127,7 +127,7 @@ class ArtworkController extends ApiBaseController
     public function show($artwork)
     {
 
-        $artwork = Artwork::with('user', 'category')
+        $artwork = Artwork::with('user.profile', 'category')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->find($artwork);
@@ -145,8 +145,8 @@ class ArtworkController extends ApiBaseController
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string',
                 'description' => 'required|string',
-                'artwork_category_id' => 'required|exists:artwork_categories,id', 
-                'images.*' => 'nullable|image|max:4096', 
+                'artwork_category_id' => 'required|exists:artwork_categories,id',
+                'images.*' => 'nullable|image|max:4096',
             ]);
 
             if ($validator->fails()) {
