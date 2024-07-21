@@ -354,6 +354,7 @@ class ArtworkController extends ApiBaseController
                 'content' => $request->input('content'),
             ]);
 
+            $comment.load('user');
             return $this->sendSuccess($comment, 'Comment added successfully');
         } catch (\Exception $e) {
             Log::error('Error adding comment: ' . $e->getMessage());
