@@ -37,7 +37,7 @@ Route::post('register', RegisterApiController::class);
 Route::get('/verify-email/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
 Route::post('/email/verification/resend', ResendEmailVerificationController::class)->name('email.send');
 Route::post('login', LoginApiController::class);
-Route::post('auth/{provider}', [SocialAuthController::class, 'redirectToProvider']);
+Route::get('auth/{provider}', [SocialAuthController::class, 'redirectToProvider']);
 
 Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
 
