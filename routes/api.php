@@ -126,3 +126,4 @@ Route::post('/contact', [ContactController::class, 'contactUs']);
 Route::get('users/search', [ProfileApiController::class, 'search']);
 Route::get('artworks/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
 Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
+Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComments']);
