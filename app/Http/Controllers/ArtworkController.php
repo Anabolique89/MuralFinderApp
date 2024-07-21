@@ -366,4 +366,20 @@ class ArtworkController extends ApiBaseController
         return $this->sendSuccess(ArtworkCategory::all(), 'categories fetch');
     }
 
+    public function getComments($artworkId)
+    {
+        try {
+            $comments = ArtworkComment::with('user.profile')
+                ->where('artwork_id', $artworkId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return $this->sendSuccess($comments, 'Comments retrieved successfully');
+        } catch (\Exception $e) {
+            Log::error('Error fetching comments: ' . $e->getMessage());
+            return $this->sendError('An error occurred while fetching comments', 500);
+        }
+    }
+
+
 }
