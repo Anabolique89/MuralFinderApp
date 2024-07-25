@@ -43,6 +43,7 @@ class LoginApiController extends ApiBaseController
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
                 'role' => $user->role,
+                'profile_image_url' => $user->profile->profile_image_url,
             ],
         ];
 

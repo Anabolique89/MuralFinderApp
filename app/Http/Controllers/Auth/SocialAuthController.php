@@ -40,6 +40,8 @@ class SocialAuthController extends ApiBaseController
                         'created_at' => $existingUser->created_at,
                         'updated_at' => $existingUser->updated_at,
                         'role' => $existingUser->role ?? null,
+                        'profile_image_url' => $existingUser->profile->profile_image_url ?? null,
+
                     ],
                 ];
 
@@ -79,7 +81,7 @@ class SocialAuthController extends ApiBaseController
                         'email' => $user->email,
                         'created_at' => $user->created_at,
                         'updated_at' => $user->updated_at,
-                        'role' => $user->role ?? null,
+                        'role' => $user->role ?? null
                     ],
                 ];
 
