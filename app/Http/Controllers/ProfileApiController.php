@@ -242,4 +242,3 @@ public function updateRole(Request $request, $id){
 
 
 
-}
