@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Validator;
 
 class ProfileApiController extends ApiBaseController
 {
@@ -42,7 +41,7 @@ class ProfileApiController extends ApiBaseController
 
             return $this->sendSuccess($profile, "Profile created");
         } catch (\Exception $e) {
-            \Log::error('Error creating profile: ' . $e->getMessage());
+            Log::error('Error creating profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -130,7 +129,7 @@ class ProfileApiController extends ApiBaseController
 
             return $this->sendSuccess(null, 'Profile has been deleted');
         } catch (\Exception $e) {
-            \Log::error('Error deleting profile: ' . $e->getMessage());
+            Log::error('Error deleting profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -170,7 +169,7 @@ class ProfileApiController extends ApiBaseController
 
             return $this->sendSuccess($path, 'Profile image uploaded successfully');
         } catch (\Exception $e) {
-            \Log::error('Error uploading profile image: ' . $e->getMessage());
+            Log::error('Error uploading profile image: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -213,7 +212,7 @@ class ProfileApiController extends ApiBaseController
 
         return $this->sendSuccess(null, 'User account and all related data have been deleted');
     } catch (\Exception $e) {
-        \Log::error('Error deleting user account: ' . $e->getMessage());
+        Log::error('Error deleting user account: ' . $e->getMessage());
         return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
     }
 }
