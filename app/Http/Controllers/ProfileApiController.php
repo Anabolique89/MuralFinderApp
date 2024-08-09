@@ -84,9 +84,7 @@ class ProfileApiController extends ApiBaseController
 
             // Update or create the Profile model
             $profileData = $request->only(['firstName', 'lastName']);
-            $user->profile()->updateOrCreate([], [
-                'first_name' => $profileData['firstName'],
-                'last_name' => $profileData['lastName'],
+            $user->profile()->updateOrCreate(['first_name', 'last_name'], [$profileData['firstName'],$profileData['lastName'],
             ]);
 
             return $this->sendSuccess($user, "Profile successfully updated");
