@@ -121,6 +121,7 @@ class DashboardStatisticController extends ApiBaseController
         // Map user statistics
         $userStats = $users->map(function($user) {
             return [
+                'id' => $user->id,
                 'profile' => $user->profile,
                 'username' => $user->username,
                 'role' => $user->role,
