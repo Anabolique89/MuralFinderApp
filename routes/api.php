@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('{id}', [ProfileApiController::class, 'show']);
         Route::put('{id}', [ProfileApiController::class, 'update']);
         Route::delete('{id}', [ProfileApiController::class, 'destroy']);
+        Route::put('update/{id}/role', [ProfileApiController::class, 'updateRole'])->name('profile.role.update');
 
         Route::post('{id}/image', [ProfileApiController::class, 'uploadProfileImage']);
     });

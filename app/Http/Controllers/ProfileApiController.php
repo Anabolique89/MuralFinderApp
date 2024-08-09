@@ -7,8 +7,10 @@ use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Validator;
 use Validator;
 
 class ProfileApiController extends ApiBaseController
@@ -48,38 +50,46 @@ class ProfileApiController extends ApiBaseController
     public function update(Request $request, $id)
     {
         try {
-            $user = User::with('profile')->find($id);
-            if (!$user) {
-                return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
-            }
+            // Retrieve the user with profile
+            $user = User::with('profile')->findOrFail($id);
 
-            if ($user->id != auth()->user()->id || auth()->user()->id !== $request->user_id) {
-                return $this->sendError("Cannot update another person's profile");
-            }
+            // Check authorization
+            // if ($user->role !==$user->id !== auth()->id() || auth()->id() !== $request->user_id) {
+            //     return $this->sendError("Cannot update another person's profile");
+            // }
 
+            // Validate request data
             $validator = Validator::make($request->all(), [
-                'user_id' => 'exists:users,id',
-                'first_name' => 'string',
-                'last_name' => 'string',
-                'bio' => 'nullable|string',
-                'dob' => 'nullable|date',
-                'country' => 'nullable|string',
+                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'role' => 'required|string',
+                'first_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'password' => 'nullable|string|min:8|confirmed',
             ]);
 
             if ($validator->fails()) {
                 return $this->validationError($validator->errors()->toArray());
             }
 
-            // Check if the user has a profile, if not, create a new one
-            if (!$user->profile) {
-                $user->profile()->create($request->all());
-            } else {
-                $user->profile->update($request->all());
+            // Update user attributes
+            $user->fill($request->only(['username', 'email', 'role']));
+
+            // Update password if provided
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
             }
+
+            // Save the User model
+            $user->save();
+
+            // Update or create the Profile model
+            $profileData = $request->only(['first_name', 'last_name']);
+            $user->profile()->updateOrCreate([], $profileData);
 
             return $this->sendSuccess($user, "Profile successfully updated");
         } catch (\Exception $e) {
-            \Log::error('Error updating profile: ' . $e->getMessage());
+            Log::error('Error updating profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -99,7 +109,7 @@ class ProfileApiController extends ApiBaseController
 
             return $this->sendSuccess($user, "User profile fetched");
         } catch (\Exception $e) {
-            \Log::error('Error fetching user profile: ' . $e->getMessage());
+            Log::error('Error fetching user profile: ' . $e->getMessage());
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -208,6 +218,26 @@ class ProfileApiController extends ApiBaseController
     }
 }
 
+public function updateRole(Request $request, $id){
+
+    $validator = Validator::make($request->all(), [
+        'role' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return $this->sendError('The role is either null or does not pass the following rules: string', JsonResponse::HTTP_BAD_REQUEST);
+    }
+
+    $user = User::find($id);
+    if (!$user) {
+        return $this->sendError('User not found', JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    $user->role = $request->role;
+    $user->save();
+    return $this->sendSuccess(null, 'Role updated successfully');
+    }
+}
 
 
 
