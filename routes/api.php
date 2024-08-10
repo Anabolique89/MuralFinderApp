@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\WallController;
 use App\Http\Controllers\Admin\DashboardStatisticController;
+use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -125,6 +126,12 @@ Route::group(['prefix' => 'admin/statistics'], function () {
     Route::get('/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
     Route::get('/walls', [DashboardStatisticController::class, 'getWallsStatistics']);
     Route::get('/users', [DashboardStatisticController::class, 'getUserStatistics']);
+});
+
+Route::group(['prefix' => 'admin/trash'], function () {
+    Route::get('', [TrashController::class, 'getAll']);
+    Route::post('/{model}/{id}/restore', [TrashController::class, 'restore']);
+    Route::delete('/{model}/{id}', [TrashController::class, 'delete']);
 });
 
 Route::post('/contact', [ContactController::class, 'contactUs']);
