@@ -23,9 +23,9 @@ class SocialAuthController extends ApiBaseController
 
     public function handleProviderCallback($provider)
     {
-        if (!$this->isValidProvider($provider)) {
-            return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
-        }
+        // if (!$this->isValidProvider($provider)) {
+        //     return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
+        // }
 
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
