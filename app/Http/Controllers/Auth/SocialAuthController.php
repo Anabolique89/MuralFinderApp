@@ -8,23 +8,31 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Config;
 
 class SocialAuthController extends ApiBaseController
 {
     public function redirectToProvider($provider)
     {
+        if (!$this->isValidProvider($provider)) {
+            return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         return Socialite::driver($provider)->stateless()->redirect();
     }
 
     public function handleProviderCallback($provider)
     {
+        if (!$this->isValidProvider($provider)) {
+            return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
 
             $existingUser = User::whereEmail($socialUser->getEmail())->first();
 
             if ($existingUser) {
-
                 $token = $existingUser->createToken('authToken')->plainTextToken;
 
                 $existingUser->load('profile');
@@ -41,7 +49,6 @@ class SocialAuthController extends ApiBaseController
                         'updated_at' => $existingUser->updated_at,
                         'role' => $existingUser->role ?? null,
                         'profile_image_url' => $existingUser->profile->profile_image_url ?? null,
-
                     ],
                 ];
 
@@ -91,5 +98,12 @@ class SocialAuthController extends ApiBaseController
         } catch (\Exception $e) {
             return $this->sendError('Unable to authenticate using ' . $provider . ': ' . $e->getMessage(), JsonResponse::HTTP_UNAUTHORIZED);
         }
+    }
+
+    private function isValidProvider($provider)
+    {
+        $validProviders = Config::get('services', []);
+
+        return in_array($provider, $validProviders);
     }
 }
