@@ -14,9 +14,9 @@ class SocialAuthController extends ApiBaseController
 {
     public function redirectToProvider($provider)
     {
-        if (!$this->isValidProvider($provider)) {
-            return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
-        }
+        // if (!$this->isValidProvider($provider)) {
+        //     return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
+        // }
 
         return Socialite::driver($provider)->stateless()->redirect();
     }
