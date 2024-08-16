@@ -6,6 +6,7 @@ use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Post;
 use App\Models\PostComment;
 use App\Models\PostLike;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -67,7 +68,7 @@ class CommunityPostController extends ApiBaseController
 
         return $this->sendSuccess($userPosts, 'Posts by user retrieved successfully');
     } catch (\Exception $e) {
-        \Log::error('Error fetching posts by user: ' . $e->getMessage());
+        Log::error('Error fetching posts by user: ' . $e->getMessage());
         return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
     }
 }
@@ -121,7 +122,7 @@ class CommunityPostController extends ApiBaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->toArray());
             }
-            if ($post->user_id !== Auth::id()) {
+            if ($post->user_id !== Auth::id() && auth()->user()->role !== 'admin') {
                 return $this->sendError("Can not update another persons post");
             }
 
@@ -129,7 +130,7 @@ class CommunityPostController extends ApiBaseController
 
 
 
-            // TODO: make sure 
+            // TODO: make sure
             if ($request->hasFile('feature_image')) {
                 if ($post->feature_image !== null) {
                     Storage::disk('public')->delete($post->feature_image);
