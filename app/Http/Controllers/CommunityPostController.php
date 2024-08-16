@@ -186,7 +186,7 @@ class CommunityPostController extends ApiBaseController
             return $this->sendError('no post found');
         }
 
-        if ($post->user_id !== Auth::id()) {
+        if ($post->user_id !== Auth::id() && auth()->user()->role !== 'admin') {
             return $this->sendError("Can not delete another persons post");
         }
 
