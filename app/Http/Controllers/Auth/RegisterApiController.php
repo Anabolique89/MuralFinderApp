@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Base\ApiBaseController;
-use App\Models\Profile;
 use App\Models\User;
-use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash as FacadesHash;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterApiController extends ApiBaseController
@@ -30,9 +29,9 @@ class RegisterApiController extends ApiBaseController
                 'username' => $request->username,
                 'role' => $request->role,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'password' => FacadesHash::make($request->password),
             ]);
-            
+
             $user->sendEmailVerificationNotification();
             return $this->sendSuccess($user, 'Account Created, please confirm your email');
         } catch (\Throwable $th) {

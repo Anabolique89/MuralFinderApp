@@ -181,7 +181,7 @@ class CommunityPostController extends ApiBaseController
 
     public function destroy($id)
     {
-        $post = post::find($id);
+        $post = Post::find($id);
         if (!$post) {
             return $this->sendError('no post found');
         }
