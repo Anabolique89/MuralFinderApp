@@ -19,19 +19,23 @@ class Wall extends Model
         'is_verified',
     ];
 
-    /**
-     * The artworks that belong to the wall.
-     */
     public function artworks()
     {
         return $this->belongsToMany(Artwork::class);
     }
 
-    /**
-     * Get the user who added the wall.
-     */
     public function addedBy()
     {
         return $this->belongsTo(User::class, 'added_by');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(WallLike::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(WallComment::class);
     }
 }

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Wall;
+use App\Models\WallComment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Auth;
 
 class WallController extends ApiBaseController
 {
@@ -175,6 +175,73 @@ class WallController extends ApiBaseController
         $walls = $query->paginate(10);
 
         return $this->sendSuccess($walls);
+    }
+
+    /**
+     * Like or unlike the specified wall.
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function toggleLike($id): JsonResponse
+    {
+        $wall = Wall::findOrFail($id);
+        $userId = Auth::id();
+
+        if ($wall->likes()->where('user_id', $userId)->exists()) {
+            // Unlike
+            $wall->likes()->detach($userId);
+            return $this->sendSuccess(null, 'Wall unliked successfully.');
+        } else {
+            // Like
+            $wall->likes()->attach($userId);
+            return $this->sendSuccess(null, 'Wall liked successfully.');
+        }
+    }
+
+    /**
+     * Add a comment to the specified wall.
+     *
+     * @param Request $request
+     * @param int $wallId
+     * @return JsonResponse
+     */
+    public function addComment(Request $request, $wallId): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        $comment = WallComment::create([
+            'wall_id' => $wallId,
+            'user_id' => Auth::id(),
+            'comment' => $request->comment,
+        ]);
+
+        return $this->sendSuccess($comment, 'Comment added successfully.');
+    }
+
+    /**
+     * Delete a comment from the specified wall.
+     *
+     * @param int $wallId
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function deleteComment($wallId, $commentId): JsonResponse
+    {
+        $comment = WallComment::where('wall_id', $wallId)
+                          ->where('id', $commentId)
+                          ->where('user_id', Auth::id())
+                          ->firstOrFail();
+
+        $comment->delete();
+
+        return $this->sendSuccess(null, 'Comment deleted successfully.');
     }
 
 }
