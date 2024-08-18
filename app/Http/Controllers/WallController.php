@@ -71,10 +71,21 @@ class WallController extends ApiBaseController
      * @return JsonResponse
      */
     public function show($id)
-    {
-        $wall = Wall::with('addedBy')->find($id);
-        return $this->sendSuccess($wall);
-    }
+{
+    // Retrieve the wall with the addedBy relationship
+    $wall = Wall::with('addedBy')
+        ->findOrFail($id);
+
+    // Count the number of likes for the wall
+    $likesCount = $wall->likes()->count();
+
+    // Add the likes count to the wall data
+    $wallData = $wall->toArray();
+    $wallData['likes_count'] = $likesCount;
+
+    return $this->sendSuccess($wallData);
+}
+
 
     /**
      * Update the specified wall in storage.
