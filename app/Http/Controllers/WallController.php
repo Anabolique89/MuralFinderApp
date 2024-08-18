@@ -192,7 +192,7 @@ class WallController extends ApiBaseController
 
     public function getComments($id): JsonResponse
     {
-        $comments = WallComment::where('wall_id', $id)->with('user')->get();
+        $comments = WallComment::where('wall_id', $id)->with('user.profile')->get();
         return $this->sendSuccess($comments, 'comments fetched');
     }
 
