@@ -177,6 +177,12 @@ class WallController extends ApiBaseController
         return $this->sendSuccess($walls);
     }
 
+    public function getComments($id): JsonResponse
+    {
+        $comments = WallComment::where('wall_id', $id)->with('user')->get();
+        return $this->sendSuccess($comments, 'comments fetched');
+    }
+
     /**
      * Like or unlike the specified wall.
      *

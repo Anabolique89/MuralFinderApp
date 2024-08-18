@@ -120,6 +120,7 @@ Route::prefix('posts')->group(function () {
 Route::group(['prefix' => 'walls'], function () {
     Route::get('/', [WallController::class, 'index']);
     Route::get('/{id}', [WallController::class, 'show']);
+    Route::get('/{id}/comments', [WallController::class, 'getComments']);
     Route::get('/search', [WallController::class, 'search']);
 });
 
