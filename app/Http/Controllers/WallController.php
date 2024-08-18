@@ -205,6 +205,7 @@ class WallController extends ApiBaseController
         }
     }
 
+
     /**
      * Add a comment to the specified wall.
      *

@@ -31,8 +31,9 @@ class Wall extends Model
 
     public function likes()
     {
-        return $this->hasMany(WallLike::class);
+        return $this->belongsToMany(User::class, 'likes', 'wall_id', 'user_id');
     }
+
 
     public function comments()
     {
