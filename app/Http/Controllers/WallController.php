@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Wall;
 use App\Models\WallComment;
+use App\Models\WallLike;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class WallController extends ApiBaseController
@@ -190,19 +192,32 @@ class WallController extends ApiBaseController
      * @return JsonResponse
      */
     public function toggleLike($id): JsonResponse
-    {
-        $wall = Wall::findOrFail($id);
-        $userId = Auth::id();
+{
+    $wall = Wall::findOrFail($id);
+    $userId = Auth::id();
 
-        if ($wall->likes()->where('user_id', $userId)->exists()) {
-            $wall->likes()->detach($userId);
+    try {
+        // Check if the user has already liked the wall
+        $existingLike = WallLike::where('user_id', $userId)
+            ->where('wall_id', $wall->id)
+            ->first();
+
+        if ($existingLike) {
+            $existingLike->delete();
+            return $this->sendSuccess(null, 'Wall unliked successfully.');
         } else {
-            $wall->likes()->attach($userId);
+            // Like by creating a new record
+            WallLike::create([
+                'user_id' => $userId,
+                'wall_id' => $wall->id,
+            ]);
+            return $this->sendSuccess(null, 'Wall liked successfully.');
         }
-
-        return $this->sendSuccess(null, 'Like toggled successfully.');
-        
+    } catch (\Exception $e) {
+        Log::error('Error toggling like: ' . $e->getMessage());
+        return $this->sendError('An error occurred while processing the like.');
     }
+}
 
 
     /**
