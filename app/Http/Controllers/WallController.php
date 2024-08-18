@@ -195,14 +195,13 @@ class WallController extends ApiBaseController
         $userId = Auth::id();
 
         if ($wall->likes()->where('user_id', $userId)->exists()) {
-            // Unlike
             $wall->likes()->detach($userId);
-            return $this->sendSuccess(null, 'Wall unliked successfully.');
         } else {
-            // Like
             $wall->likes()->attach($userId);
-            return $this->sendSuccess(null, 'Wall liked successfully.');
         }
+
+        return $this->sendSuccess(null, 'Like toggled successfully.');
+        
     }
 
 
