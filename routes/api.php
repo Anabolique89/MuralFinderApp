@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/like', [WallController::class, 'toggleLike']);
         Route::post('/{id}/comments', [WallController::class, 'addComment']);
         Route::delete('/{wallId}/comments/{commentId}', [WallController::class, 'deleteComment']);
-        Route::delete('/{wallId}/comments/{commentId}', [WallController::class, 'updateComment']);
+        Route::put('/{wallId}/comments/{commentId}', [WallController::class, 'updateComment']);
     });
 });
 
