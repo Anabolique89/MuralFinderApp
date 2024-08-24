@@ -46,6 +46,15 @@ class ArtworkController extends ApiBaseController
         return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
     }
 
+    public function getAllUngrouped(Request $request){
+        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+        $artworks = Artwork::with('user.profile')
+            ->withCount('likes')
+            ->withCount('comments')
+            ->paginate($pageSize);
+            return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
+    }
+
 
     public function search(Request $request)
     {
