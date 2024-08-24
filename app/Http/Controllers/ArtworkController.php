@@ -271,7 +271,7 @@ class ArtworkController extends ApiBaseController
             return $this->sendError('no artwork found');
         }
 
-        if ($artwork->user_id !== Auth::id()) {
+        if ($artwork->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
             return $this->sendError("Can not delete another persons artwork");
         }
 
