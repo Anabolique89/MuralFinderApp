@@ -276,4 +276,32 @@ class WallController extends ApiBaseController
         return $this->sendSuccess(null, 'Comment deleted successfully.');
     }
 
+
+
+    /**
+     * Edit a comment from the specified wall.
+     * @param int $wallId
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function updateComment(Request $request, $wallId, $commentId): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        $comment = WallComment::where('wall_id', $wallId)
+            ->where('id', $commentId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $comment->comment = $request->comment;
+        $comment->save();
+
+        return $this->sendSuccess($comment, 'Comment updated successfully.');
+    }
 }
