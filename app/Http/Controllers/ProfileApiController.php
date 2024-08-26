@@ -62,8 +62,8 @@ class ProfileApiController extends ApiBaseController
                 'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
                 'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
                 'role' => 'nullable|string',
-                'firstName' => 'nullable|string|max:255',
-                'lastName' => 'nullable|string|max:255',
+                'first_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
                 'password' => 'nullable|string|min:8|confirmed',
             ]);
 
@@ -83,17 +83,17 @@ class ProfileApiController extends ApiBaseController
             $user->save();
 
             // Update or create the Profile model
-            $profileData = $request->only(['firstName', 'lastName']);
+            $profileData = $request->only(['first_name', 'last_name']);
             $profile = $user->profile;
             if ($profile) {
                 $profile->update([
-                    'first_name' => $profileData['firstName'],
-                    'last_name' => $profileData['lastName'],
+                    'first_name' => $profileData['first_name'],
+                    'last_name' => $profileData['last_name'],
                 ]);
             } else {
                 $user->profile()->create([
-                    'first_name' => $profileData['firstName'],
-                    'last_name' => $profileData['lastName'],
+                    'first_name' => $profileData['first_name'],
+                    'last_name' => $profileData['last_name'],
                 ]);
             }
 
