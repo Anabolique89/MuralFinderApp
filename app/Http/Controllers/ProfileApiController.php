@@ -59,9 +59,9 @@ class ProfileApiController extends ApiBaseController
 
             // Validate request data
             $validator = Validator::make($request->all(), [
-                'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-                'role' => 'required|string',
+                'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+                'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+                'role' => 'nullable|string',
                 'firstName' => 'nullable|string|max:255',
                 'lastName' => 'nullable|string|max:255',
                 'password' => 'nullable|string|min:8|confirmed',
