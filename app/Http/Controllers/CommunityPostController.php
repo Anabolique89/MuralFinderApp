@@ -56,21 +56,30 @@ class CommunityPostController extends ApiBaseController
 
         $posts = $query->paginate(15);
 
-        return $this->sendSuccess($posts, "post searched");
+        // Add 'liked' property to each post
+        $posts->getCollection()->transform(function ($post) {
+            $post->liked = $this->isLiked($post); // Check if liked
+            return $post;
+        });
+
+        return $this->sendSuccess($posts, "Posts searched successfully");
     }
 
-    public function show($post)
+    public function show($postId)
     {
-
         $post = Post::with('user.profile')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
-            ->find($post);
+            ->find($postId);
 
         if (!$post) {
             return $this->sendError('No post with such id', 404);
         }
-        return $this->sendSuccess($post, 'post retrieved successfully');
+
+        // Add 'liked' property to the post
+        $post->liked = $this->isLiked($post); // Check if liked
+
+        return $this->sendSuccess($post, 'Post retrieved successfully');
     }
 
     public function postsByUser($userId)
@@ -81,6 +90,12 @@ class CommunityPostController extends ApiBaseController
                 ->withCount('comments')
                 ->where('user_id', $userId)
                 ->paginate(10);
+
+            // Add 'liked' property to each post
+            $userPosts->getCollection()->transform(function ($post) {
+                $post->liked = $this->isLiked($post); // Check if liked
+                return $post;
+            });
 
             return $this->sendSuccess($userPosts, 'Posts by user retrieved successfully');
         } catch (\Exception $e) {
