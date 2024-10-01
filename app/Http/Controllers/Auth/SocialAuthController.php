@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Base\ApiBaseController;
-use Hash;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 
 class SocialAuthController extends ApiBaseController
 {

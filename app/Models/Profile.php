@@ -17,7 +17,10 @@ class Profile extends Model
         "bio",
         "dob",
         "country",
-        "proffession"
+        "proffession",
+        'twitter',
+        'facebook',
+        'instagram',
     ];
 
     public function user()

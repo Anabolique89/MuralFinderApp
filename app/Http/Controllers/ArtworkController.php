@@ -20,6 +20,7 @@ class ArtworkController extends ApiBaseController
     {
         $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
 
+        // Fetch artworks with relationships and counts
         $artworks = Artwork::with(['category', 'user.profile'])
             ->withCount('likes')
             ->withCount('comments')
@@ -30,13 +31,26 @@ class ArtworkController extends ApiBaseController
             return $artwork->category ? $artwork->category->name : 'others';
         });
 
-        // Transform grouped artworks to include pagination information
+        // Transform grouped artworks to include pagination information and liked status
         $groupedArtworksWithPagination = [];
 
         foreach ($groupedArtworks as $category => $items) {
+            // Map items to include liked property
+            $itemsWithLikedProperty = $items->map(function ($artwork) {
+                return [
+                    'id' => $artwork->id,
+                    'title' => $artwork->title,
+                    'category' => $artwork->category ? $artwork->category->name : 'others',
+                    'user' => $artwork->user->profile,
+                    'likes_count' => $artwork->likes_count,
+                    'comments_count' => $artwork->comments_count,
+                    'liked' => $this->isLiked($artwork), // Check if liked
+                ];
+            });
+
             $groupedArtworksWithPagination[] = [
                 'category' => $category,
-                'artworks' => $items,
+                'artworks' => $itemsWithLikedProperty,
                 'total' => $artworks->total(),
                 'current_page' => $artworks->currentPage(),
                 'last_page' => $artworks->lastPage()
@@ -44,6 +58,45 @@ class ArtworkController extends ApiBaseController
         }
 
         return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
+    }
+
+    public function indexWithLiked(Request $request)
+    {
+        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+
+        // Fetch artworks with relationships and counts
+        $artworks = Artwork::with(['category', 'user.profile'])
+            ->withCount('likes')
+            ->withCount('comments')
+            ->paginate($pageSize); // Perform pagination
+
+        // Add 'liked' property and transform the artworks
+        $artworksWithLikedProperty = $artworks->getCollection()->map(function ($artwork) {
+            return [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'category' => $artwork->category ? $artwork->category->name : 'others',
+                'user' => $artwork->user,
+                'likes_count' => $artwork->likes_count,
+                'comments_count' => $artwork->comments_count,
+                'liked' => $this->isLiked($artwork) // Assuming you have a method to check if liked
+            ];
+        });
+
+        // Transform paginated response
+        return [
+            'data' => $artworksWithLikedProperty,
+            'total' => $artworks->total(),
+            'current_page' => $artworks->currentPage(),
+            'last_page' => $artworks->lastPage()
+        ];
+    }
+
+    private function isLiked($artwork)
+    {
+        return auth()->user() ?
+               (bool)$artwork->likes()->where('user_id', auth()->id())->exists() :
+               false;
     }
 
     public function getAllUngrouped(Request $request){

@@ -65,6 +65,9 @@ class ProfileApiController extends ApiBaseController
                 'first_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'password' => 'nullable|string|min:8|confirmed',
+                'twitter' => 'nullable|string|max:255',
+                'facebook' => 'nullable|string|max:255',
+                'instagram' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -83,17 +86,23 @@ class ProfileApiController extends ApiBaseController
             $user->save();
 
             // Update or create the Profile model
-            $profileData = $request->only(['first_name', 'last_name']);
+            $profileData = $request->only(['first_name', 'last_name', 'twitter', 'facebook', 'instagram']);
             $profile = $user->profile;
             if ($profile) {
                 $profile->update([
                     'first_name' => $profileData['first_name'],
                     'last_name' => $profileData['last_name'],
+                    'twitter' => $profileData['twitter'],
+                    'facebook' => $profileData['facebook'],
+                    'instagram' => $profileData['instagram'],
                 ]);
             } else {
                 $user->profile()->create([
                     'first_name' => $profileData['first_name'],
                     'last_name' => $profileData['last_name'],
+                    'twitter' => $profileData['twitter'],
+                    'facebook' => $profileData['facebook'],
+                    'instagram' => $profileData['instagram'],
                 ]);
             }
 
