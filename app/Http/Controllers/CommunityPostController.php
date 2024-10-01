@@ -23,7 +23,23 @@ class CommunityPostController extends ApiBaseController
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->paginate($pageSize);
+
+        // Add 'liked' property to each post
+        $posts->getCollection()->transform(function ($post) {
+            $post->liked = $this->isLiked($post); // Check if liked
+            return $post;
+        });
+
         return $this->sendSuccess($posts, 'Posts retrieved successfully');
+    }
+
+    // Example method to determine if a post is liked by the user
+    private function isLiked($post)
+    {
+        // Replace with actual logic to check if the post is liked by the current user
+        return auth()->user() ?
+            (bool) $post->likes()->where('user_id', auth()->id())->exists() :
+            false;
     }
 
     public function search(Request $request)
@@ -58,20 +74,20 @@ class CommunityPostController extends ApiBaseController
     }
 
     public function postsByUser($userId)
-{
-    try {
-        $userPosts = Post::with('user.profile')
-            ->withCount('likes')
-            ->withCount('comments')
-            ->where('user_id', $userId)
-            ->paginate(10);
+    {
+        try {
+            $userPosts = Post::with('user.profile')
+                ->withCount('likes')
+                ->withCount('comments')
+                ->where('user_id', $userId)
+                ->paginate(10);
 
-        return $this->sendSuccess($userPosts, 'Posts by user retrieved successfully');
-    } catch (\Exception $e) {
-        Log::error('Error fetching posts by user: ' . $e->getMessage());
-        return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->sendSuccess($userPosts, 'Posts by user retrieved successfully');
+        } catch (\Exception $e) {
+            Log::error('Error fetching posts by user: ' . $e->getMessage());
+            return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
-}
 
 
     public function store(Request $request)
