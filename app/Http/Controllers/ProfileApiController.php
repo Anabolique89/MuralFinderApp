@@ -68,6 +68,9 @@ class ProfileApiController extends ApiBaseController
                 'twitter' => 'nullable|string|max:255',
                 'facebook' => 'nullable|string|max:255',
                 'instagram' => 'nullable|string|max:255',
+                'dob' => 'nullable|date',
+                "bio" => 'nullable|string',
+                "country" => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -89,21 +92,9 @@ class ProfileApiController extends ApiBaseController
             $profileData = $request->only(['first_name', 'last_name', 'twitter', 'facebook', 'instagram']);
             $profile = $user->profile;
             if ($profile) {
-                $profile->update([
-                    'first_name' => $profileData['first_name'],
-                    'last_name' => $profileData['last_name'],
-                    'twitter' => $profileData['twitter'],
-                    'facebook' => $profileData['facebook'],
-                    'instagram' => $profileData['instagram'],
-                ]);
+                $profile->update($profileData);
             } else {
-                $user->profile()->create([
-                    'first_name' => $profileData['first_name'],
-                    'last_name' => $profileData['last_name'],
-                    'twitter' => $profileData['twitter'],
-                    'facebook' => $profileData['facebook'],
-                    'instagram' => $profileData['instagram'],
-                ]);
+                $profile = Profile::create(array_merge($profileData, ['user_id' => $user->id]));
             }
 
             return $this->sendSuccess($user, "Profile successfully updated");
