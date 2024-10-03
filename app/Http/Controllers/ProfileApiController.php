@@ -89,7 +89,8 @@ class ProfileApiController extends ApiBaseController
             $user->save();
 
             // Update or create the Profile model
-            $profileData = $request->only(['first_name', 'last_name', 'twitter', 'facebook', 'instagram']);
+            $profileData = $request->only(['first_name', 'last_name',
+            'twitter', 'facebook', 'instagram','dob', 'bio', 'country']);
             $profile = $user->profile;
             if ($profile) {
                 $profile->update($profileData);
