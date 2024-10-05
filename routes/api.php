@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileApiController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\WallController;
 use App\Http\Controllers\Admin\DashboardStatisticController;
+use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,11 +45,15 @@ Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProv
 Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
 
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+
+
 /*
  * Authenticated routes
  */
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', LogoutApiController::class);
+
+    Route::put('change-password', PasswordChangeController::class)->name('profile.password.update');
 
     Route::delete('delete/user/{id}', [ProfileApiController::class, 'deleteUser']);
     Route::prefix('profiles')->group(function () {
