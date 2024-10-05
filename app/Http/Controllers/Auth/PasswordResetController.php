@@ -9,6 +9,9 @@ use Illuminate\Auth\Events\PasswordReset;
 use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash as FacadesHash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Str;
@@ -21,7 +24,7 @@ class PasswordResetController extends ApiBaseController
     {
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (!FacadesHash::check($request->current_password, $user->password)) {
             return $this->errorResponse('Current password is incorrect', Response::HTTP_BAD_REQUEST);
         }
 
@@ -33,7 +36,7 @@ class PasswordResetController extends ApiBaseController
             return $this->errorResponse($validator->errors(), Response::HTTP_BAD_REQUEST);
         }
 
-        $user->password = Hash::make($request->new_password);
+        $user->password = FacadesHash::make($request->new_password);
         $user->save();
 
         return $this->successResponse('Password changed successfully', null, Response::HTTP_OK);
@@ -56,7 +59,7 @@ class PasswordResetController extends ApiBaseController
                     $shortenedToken = Str::random(10);
 
                     // Update the password_resets table with the generated token
-                    \DB::table('password_resets')->updateOrInsert(
+                    DB::table('password_resets')->updateOrInsert(
                         ['email' => $user->email],
                         ['token' => $shortenedToken, 'created_at' => now()]
                     );
@@ -93,7 +96,7 @@ class PasswordResetController extends ApiBaseController
             }
 
             // Check if the token matches in the password_resets_tokens table
-            $passwordReset = \DB::table('password_resets')
+            $passwordReset = DB::table('password_resets')
                 ->where('email', $request->email)
                 ->where('token', $request->token)
                 ->first();
@@ -105,11 +108,11 @@ class PasswordResetController extends ApiBaseController
             $user = User::where('email', $request->email)->first();
 
 
-            $user->password = Hash::make($request->password);
+            $user->password = FacadesHash::make($request->password);
             $user->save();
 
             // Delete the used token from the password_resets_tokens table
-            \DB::table('password_resets')
+            DB::table('password_resets')
                 ->where('email', $user->email)
                 ->delete();
 
@@ -117,7 +120,7 @@ class PasswordResetController extends ApiBaseController
 
             return $this->sendSuccess(null, 'Password reset successful');
         } catch (\Exception $e) {
-            \Log::error($e);
+            Log::error($e);
             return $this->sendError($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -17,12 +17,12 @@ class PasswordChangeController extends ApiBaseController
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
+            'new_password' => 'required|min:8',
         ]);
 
 
         if ($validator->fails()) {
-            return $this->validationError($validator->errors()->toArray());
+            return $this->sendError($validator->errors());
         }
 
         if (!Hash::check($request->current_password, $request->user()->password)) {
