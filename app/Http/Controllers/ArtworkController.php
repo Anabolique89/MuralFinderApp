@@ -154,14 +154,14 @@ class ArtworkController extends ApiBaseController
             ], 500);
         }
     }
-    public function getUserArtworks($userId, Request $request)
+    public function getUserArtworks(Request $request, $userId)
     {
         $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
 
-        $artworks = Artwork::with(['category', 'user.profile'])
+        $artworks = Artwork::with('category', 'user.profile')
             ->withCount('likes')
             ->withCount('comments')
-            ->where('user_id', $userId)
+            ->where('user_id', operator: $userId)
             ->paginate($pageSize);
 
         // Grouping by category name using collection methods
@@ -194,9 +194,15 @@ class ArtworkController extends ApiBaseController
             ->withCount('comments') // Count the number of comments
             ->find($artwork);
 
+
+
         if (!$artwork) {
             return $this->sendError('No artwork with such id', 404);
         }
+
+        // add the like property to check is a user has liked the artwork
+        $artwork->liked = $this->isLiked($artwork);
+        
         return $this->sendSuccess($artwork, 'Artwork retrieved successfully');
     }
 
