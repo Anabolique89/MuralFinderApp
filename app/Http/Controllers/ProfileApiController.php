@@ -71,6 +71,7 @@ class ProfileApiController extends ApiBaseController
                 'dob' => 'nullable|date',
                 "bio" => 'nullable|string',
                 "country" => 'nullable|string',
+                'proffession' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -90,7 +91,7 @@ class ProfileApiController extends ApiBaseController
 
             // Update or create the Profile model
             $profileData = $request->only(['first_name', 'last_name',
-            'twitter', 'facebook', 'instagram','dob', 'bio', 'country']);
+            'twitter', 'facebook', 'instagram','dob', 'bio', 'country', 'proffession']);
             $profile = $user->profile;
             if ($profile) {
                 $profile->update($profileData);
