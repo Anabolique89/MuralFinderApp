@@ -17,26 +17,34 @@ class ArtworkController extends ApiBaseController
     public function index(Request $request)
     {
         $pageSize = $request->query('pageSize', 10);
-        $userId = Auth::id();
 
-        $artworks = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        }])
-        ->withCount('likes', 'comments')
-        ->paginate($pageSize);
+        // Check if user is authenticated
+        $userId = Auth::check() ? Auth::id() : null;
 
-        $groupedArtworks = $artworks->groupBy(fn ($artwork) => $artwork->category?->name ?? 'others');
+        $artworks = Artwork::with([
+            'category',
+            'user.profile',
+            'likes' => function ($query) use ($userId) {
+                if ($userId) {
+                    $query->where('user_id', $userId);
+                }
+            }
+        ])
+            ->withCount('likes', 'comments')
+            ->paginate($pageSize);
+
+        $groupedArtworks = $artworks->groupBy(fn($artwork) => $artwork->category?->name ?? 'others');
         $groupedArtworksWithPagination = [];
 
         foreach ($groupedArtworks as $category => $items) {
-            $itemsWithLikedProperty = $items->map(fn ($artwork) => [
+            $itemsWithLikedProperty = $items->map(fn($artwork) => [
                 'id' => $artwork->id,
                 'title' => $artwork->title,
                 'category' => $artwork->category?->name ?? 'others',
                 'user' => $artwork->user->profile,
                 'likes_count' => $artwork->likes_count,
                 'comments_count' => $artwork->comments_count,
-                'liked' => $artwork->likes->contains('user_id', $userId),
+                'liked' => $userId ? $artwork->likes->contains('user_id', $userId) : false, // If authenticated, check if liked
             ]);
 
             $groupedArtworksWithPagination[] = [
@@ -57,12 +65,12 @@ class ArtworkController extends ApiBaseController
             ->withCount(['likes', 'comments'])
             ->findOrFail($artworkId);
 
-
-
-        $artwork->liked = $this->isLiked($artwork->id);
+        // Check if user is authenticated and set liked property
+        $artwork->liked = Auth::check() ? $this->isLiked($artwork->id) : false;
 
         return $this->sendSuccess($artwork, 'Artwork retrieved successfully');
     }
+
 
     public function store(Request $request)
     {
