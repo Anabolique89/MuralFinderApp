@@ -95,7 +95,10 @@ class ArtworkController extends ApiBaseController
 
     private function isLiked($artwork)
     {
-        return auth()->user() ? (bool)$artwork->likes()->where('user_id', auth()->id())->exists() : false;
+        return ArtworkLike::where('artwork_id',$artwork->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
 
     }
 
