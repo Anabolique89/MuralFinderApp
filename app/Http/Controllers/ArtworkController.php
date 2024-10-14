@@ -57,7 +57,9 @@ class ArtworkController extends ApiBaseController
             ->withCount(['likes', 'comments'])
             ->findOrFail($artworkId);
 
-        $artwork->liked = $this->isLiked($artwork);
+
+
+        $artwork->liked = $this->isLiked($artwork->id);
 
         return $this->sendSuccess($artwork, 'Artwork retrieved successfully');
     }
@@ -192,8 +194,6 @@ class ArtworkController extends ApiBaseController
 
     private function isLiked($artwork)
     {
-        return ArtworkLike::where('artwork_id', $artwork->id)
-            ->where('user_id', Auth::id())
-            ->exists();
+        return ArtworkLike::where('user_id', Auth::id())->where('artwork_id', $artwork)->exists() ? true : false;
     }
 }
