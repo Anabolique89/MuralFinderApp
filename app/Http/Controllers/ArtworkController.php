@@ -17,48 +17,49 @@ use App\Models\ArtworkComment;
 class ArtworkController extends ApiBaseController
 {
     public function index(Request $request)
-    {
-        $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
+{
+    $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
 
-        // Fetch artworks with relationships and counts
-        $artworks = Artwork::with(['category', 'user.profile'])
-            ->withCount('likes')
-            ->withCount('comments')
-            ->paginate($pageSize); // Perform pagination before grouping
+    // Fetch artworks with relationships and likes for the current user
+    $userId = auth()->id(); // Get current user's ID
+    $artworks = Artwork::with(['category', 'user.profile', 'likes' => function($query) use ($userId) {
+        $query->where('user_id', $userId);
+    }])
+    ->withCount('likes', 'comments')
+    ->paginate($pageSize);
 
-        // Grouping by category name using collection methods
-        $groupedArtworks = $artworks->groupBy(function ($artwork) {
-            return $artwork->category ? $artwork->category->name : 'others';
+    // Group artworks by category
+    $groupedArtworks = $artworks->groupBy(function ($artwork) {
+        return $artwork->category ? $artwork->category->name : 'others';
+    });
+
+    // Prepare the grouped artworks with liked status
+    $groupedArtworksWithPagination = [];
+
+    foreach ($groupedArtworks as $category => $items) {
+        $itemsWithLikedProperty = $items->map(function ($artwork) use ($userId) {
+            return [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'category' => $artwork->category ? $artwork->category->name : 'others',
+                'user' => $artwork->user->profile,
+                'likes_count' => $artwork->likes_count,
+                'comments_count' => $artwork->comments_count,
+                'liked' => $artwork->likes->contains('user_id', $userId), // Check if user liked
+            ];
         });
 
-        // Transform grouped artworks to include pagination information and liked status
-        $groupedArtworksWithPagination = [];
-
-        foreach ($groupedArtworks as $category => $items) {
-            // Map items to include liked property
-            $itemsWithLikedProperty = $items->map(function ($artwork) {
-                return [
-                    'id' => $artwork->id,
-                    'title' => $artwork->title,
-                    'category' => $artwork->category ? $artwork->category->name : 'others',
-                    'user' => $artwork->user->profile,
-                    'likes_count' => $artwork->likes_count,
-                    'comments_count' => $artwork->comments_count,
-                    'liked' => $this->isLiked($artwork), // Check if liked
-                ];
-            });
-
-            $groupedArtworksWithPagination[] = [
-                'category' => $category,
-                'artworks' => $itemsWithLikedProperty,
-                'total' => $artworks->total(),
-                'current_page' => $artworks->currentPage(),
-                'last_page' => $artworks->lastPage()
-            ];
-        }
-
-        return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
+        $groupedArtworksWithPagination[] = [
+            'category' => $category,
+            'artworks' => $itemsWithLikedProperty,
+            'total' => $artworks->total(),
+            'current_page' => $artworks->currentPage(),
+            'last_page' => $artworks->lastPage(),
+        ];
     }
+
+    return $this->sendSuccess($groupedArtworksWithPagination, 'Artworks grouped by category retrieved successfully');
+}
 
     public function indexWithLiked(Request $request)
     {
@@ -94,9 +95,8 @@ class ArtworkController extends ApiBaseController
 
     private function isLiked($artwork)
     {
-        return auth()->user() ?
-               (bool)$artwork->likes()->where('user_id', auth()->id())->exists() :
-               false;
+        return auth()->user() ? (bool)$artwork->likes()->where('user_id', auth()->id())->exists() : false;
+
     }
 
     public function getAllUngrouped(Request $request){
@@ -186,25 +186,18 @@ class ArtworkController extends ApiBaseController
     }
 
 
-    public function show($artwork)
-    {
+    public function show($artworkId)
+{
+    // Find artwork by ID or return an error if not found
+    $artwork = Artwork::with(['user.profile', 'category'])
+        ->withCount(['likes', 'comments']) // Count likes and comments
+        ->findOrFail($artworkId); // Fails if artwork is not found
 
-        $artwork = Artwork::with('user.profile', 'category')
-            ->withCount('likes') // Count the number of likes
-            ->withCount('comments') // Count the number of comments
-            ->find($artwork);
+    // Check if the user has liked the artwork
+    $artwork->liked = $this->isLiked($artwork);
 
-
-
-        if (!$artwork) {
-            return $this->sendError('No artwork with such id', 404);
-        }
-
-        // add the like property to check is a user has liked the artwork
-        $artwork->liked = $this->isLiked($artwork);
-        
-        return $this->sendSuccess($artwork, 'Artwork retrieved successfully');
-    }
+    return $this->sendSuccess($artwork, 'Artwork retrieved successfully');
+}
 
     public function store(Request $request)
     {
