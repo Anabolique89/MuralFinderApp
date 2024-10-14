@@ -18,6 +18,7 @@ class Profile extends Model
         "dob",
         "country",
         "proffession",
+        'location',
         'twitter',
         'location',
         'facebook',
