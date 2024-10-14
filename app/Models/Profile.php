@@ -19,6 +19,7 @@ class Profile extends Model
         "country",
         "proffession",
         'twitter',
+        'location',
         'facebook',
         'instagram',
     ];

@@ -71,6 +71,7 @@ class ProfileApiController extends ApiBaseController
                 'dob' => 'nullable|date',
                 "bio" => 'nullable|string',
                 "country" => 'nullable|string',
+                "location" => 'nullable|string',
                 'proffession' => 'nullable|string'
             ]);
 
@@ -91,7 +92,7 @@ class ProfileApiController extends ApiBaseController
 
             // Update or create the Profile model
             $profileData = $request->only(['first_name', 'last_name',
-            'twitter', 'facebook', 'instagram','dob', 'bio', 'country', 'proffession']);
+            'twitter', 'facebook', 'instagram','dob', 'bio', 'country', 'proffession', 'location']);
             $profile = $user->profile;
             if ($profile) {
                 $profile->update($profileData);
