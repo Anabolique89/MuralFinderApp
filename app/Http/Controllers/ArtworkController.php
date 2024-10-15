@@ -18,9 +18,7 @@ class ArtworkController extends ApiBaseController
     {
         $pageSize = $request->query('pageSize', 10);
 
-        $userId = $request->input('user_id') ?
-        $request->input('user_id') :
-        Auth::id();
+        $userId = Auth::id();
 
         $artworks = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
             $query->where('user_id', $userId);
@@ -39,7 +37,7 @@ class ArtworkController extends ApiBaseController
                 'user' => $artwork->user->profile,
                 'likes_count' => $artwork->likes_count,
                 'comments_count' => $artwork->comments_count,
-                'liked' => $artwork->likes->contains('user_id', $userId),
+                'liked' => $this->isLiked($artwork->id, $userId),
             ]);
 
             $groupedArtworksWithPagination[] = [
@@ -56,14 +54,11 @@ class ArtworkController extends ApiBaseController
 
     public function show(Request $request, $artworkId)
     {
+        $userId = Auth::id();
 
         $artwork = Artwork::with(['user.profile', 'category'])
             ->withCount(['likes', 'comments'])
             ->findOrFail($artworkId);
-
-        $userId = $request->input('user_id') ?
-            $request->input('user_id') :
-            Auth::id();
 
         $artwork->liked = $this->isLiked($artwork->id, $userId);
 
@@ -198,8 +193,94 @@ class ArtworkController extends ApiBaseController
         }
     }
 
-    private function isLiked($artwork, $userId)
+    public function search(Request $request)
     {
-        return ArtworkLike::where('user_id', $userId)->where('artwork_id', $artwork)->exists() ? true : false;
+        try {
+            $userId = Auth::id();
+            $searchQuery = $request->get('query');
+
+            $query = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }]);
+
+            if ($searchQuery) {
+                $query->where(function ($query) use ($searchQuery) {
+                    $query->where('title', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                        ->orWhereHas('user', function ($query) use ($searchQuery) {
+                            $query->where('username', 'like', '%' . $searchQuery . '%');
+                        })
+                        ->orWhereHas('category', function ($query) use ($searchQuery) {
+                            $query->where('name', 'like', '%' . $searchQuery . '%');
+                        });
+                });
+            }
+
+            $pageSize = $request->get('pageSize', 15);
+            $artworks = $query->paginate($pageSize);
+
+            $artworksWithLikedProperty = $artworks->getCollection()->map(function ($artwork) use ($userId) {
+                $artwork->liked = $this->isLiked($artwork->id, $userId);
+                return $artwork;
+            });
+
+            $artworks->setCollection($artworksWithLikedProperty);
+
+            return $this->sendSuccess($artworks, "Artworks searched successfully");
+        } catch (\Exception $e) {
+            Log::error('Error in search function: ' . $e->getMessage());
+            return $this->sendError('An error occurred while searching for artworks');
+        }
+    }
+
+    public function getUserArtworks(Request $request, $userId)
+    {
+        $pageSize = $request->query('pageSize', 10);
+
+        $artworks = Artwork::with('category', 'user.profile')
+            ->withCount('likes', 'comments')
+            ->where('user_id', $userId)
+            ->paginate($pageSize);
+
+        $groupedArtworks = $artworks->groupBy(fn ($artwork) => $artwork->category ? $artwork->category->name : 'others');
+        $userArtworks = [];
+
+        foreach ($groupedArtworks as $category => $items) {
+            $itemsWithLikedProperty = $items->map(function ($artwork) use ($userId) {
+                $artwork->liked = $this->isLiked($artwork->id, $userId);
+                return $artwork;
+            });
+
+            $userArtworks[] = [
+                'category' => $category,
+                'artworks' => $itemsWithLikedProperty,
+            ];
+        }
+
+        return $this->sendSuccess($userArtworks, 'User artworks retrieved successfully');
+    }
+
+    public function getAllUngrouped(Request $request)
+    {
+        $pageSize = $request->query('pageSize', 10);
+        $userId = Auth::id();
+
+        $artworks = Artwork::with('user.profile')
+            ->withCount('likes', 'comments')
+            ->paginate($pageSize);
+
+        $artworksWithLikedProperty = $artworks->getCollection()->map(function ($artwork) use ($userId) {
+            $artwork->liked = $this->isLiked($artwork->id, $userId);
+            return $artwork;
+        });
+
+        $artworks->setCollection($artworksWithLikedProperty);
+
+        return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
+    }
+
+    private function isLiked($artworkId, $userId)
+    {
+        return ArtworkLike::where('user_id', $userId)->where('artwork_id', $artworkId)->exists();
     }
 }
