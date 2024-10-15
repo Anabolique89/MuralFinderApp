@@ -18,7 +18,7 @@ class ArtworkController extends ApiBaseController
     {
         $pageSize = $request->query('pageSize', 10);
 
-        $userId = Auth::id();
+        $userId = $request->input('user_id') ?? Auth::id();
 
         $artworks = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
             $query->where('user_id', $userId);
@@ -54,7 +54,8 @@ class ArtworkController extends ApiBaseController
 
     public function show(Request $request, $artworkId)
     {
-        $userId = Auth::id();
+        $userId = $request->input('user_id') ?? Auth::id();
+
 
         $artwork = Artwork::with(['user.profile', 'category'])
             ->withCount(['likes', 'comments'])
@@ -196,7 +197,7 @@ class ArtworkController extends ApiBaseController
     public function search(Request $request)
     {
         try {
-            $userId = Auth::id();
+            $userId = $request->input('user_id') ?? Auth::id();
             $searchQuery = $request->get('query');
 
             $query = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
@@ -263,7 +264,7 @@ class ArtworkController extends ApiBaseController
     public function getAllUngrouped(Request $request)
     {
         $pageSize = $request->query('pageSize', 10);
-        $userId = Auth::id();
+        $userId = $request->input('user_id') ?? Auth::id();
 
         $artworks = Artwork::with('user.profile')
             ->withCount('likes', 'comments')
