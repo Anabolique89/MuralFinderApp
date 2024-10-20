@@ -84,7 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
         Route::get('/{artwork}/comments', [ArtworkController::class, 'getComments']);
         Route::delete('/comments/{comment}', [ArtworkController::class, 'deleteComment']);
-        Route::put('/{artwork}/comments/{comment}/edit', [ArtworkController::class, 'editComment']);
+        Route::put('/comments/{comment}/edit', [ArtworkController::class, 'editComment']);
     });
 
     Route::prefix('posts')->group(function () {
