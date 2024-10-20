@@ -301,6 +301,30 @@ class ArtworkController extends ApiBaseController
         return $this->sendSuccess($comment, 'Comment added successfully.');
     }
 
+    public function editComment(Request $request, $comment){
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        $comment = ArtworkComment::find($comment);
+        $comment->content = $request->input('content');
+        $comment->save();
+        return $this->sendSuccess($comment, 'Comment updated successfully.');
+    }
+
+
+    public function deleteComment($comment){
+        $comment = ArtworkComment::find($comment);
+        $comment->delete();
+        return $this->sendSuccess(null, 'Comment deleted successfully.');
+    }
+    
+
+
     public function getComments($artworkId){
         $comments = ArtworkComment::where('artwork_id', $artworkId)->with('user.profile')->get();
         return $this->sendSuccess($comments, 'comments fetched');
