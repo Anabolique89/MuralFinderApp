@@ -93,6 +93,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{post}/unlike', [CommunityPostController::class, 'unlike']);
         Route::post('/{post}/like', [CommunityPostController::class, 'like']);
         Route::post('/{posts}/comment', [CommunityPostController::class, 'comment']);
+        Route::put('comments/{comment}/edit', [CommunityPostController::class, 'editComment']);
+        Route::delete('/comments/{comment}', [CommunityPostController::class, 'deleteComment']);
     });
 
     Route::group(['prefix' => 'walls'], function () {

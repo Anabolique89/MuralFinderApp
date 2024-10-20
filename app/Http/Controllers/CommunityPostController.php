@@ -318,4 +318,42 @@ class CommunityPostController extends ApiBaseController
             return $this->sendError('An error occurred while retrieving comments', 500);
         }
     }
+
+    public function editComment(Request $request, $comment)
+    {
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        try {
+            // Update the comment
+            $comment = PostComment::find($comment);
+            $comment->update([
+                'content' => $request->input('content'),
+            ]);
+
+            return $this->sendSuccess($comment, 'Comment updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Error updating comment: ' . $e->getMessage());
+            return $this->sendError('An error occurred while updating comment', 500);
+        }
+    }
+
+    public function deleteComment($comment)
+    {
+        try {
+            // Delete the comment
+            $comment = PostComment::find($comment);
+            $comment->delete();
+
+            return $this->sendSuccess(null, 'Comment deleted successfully');
+        } catch (\Exception $e) {
+            Log::error('Error deleting comment: ' . $e->getMessage());
+            return $this->sendError('An error occurred while deleting comment', 500);
+        }
+    }
 }
