@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Artwork;
+use App\Models\ArtworkCategory;
 use App\Models\ArtworkComment;
 use App\Models\ArtworkImage;
 use App\Models\ArtworkLike;
@@ -322,7 +323,12 @@ class ArtworkController extends ApiBaseController
         $comment->delete();
         return $this->sendSuccess(null, 'Comment deleted successfully.');
     }
-    
+
+    public function getCategories(){
+        $categories = ArtworkCategory::all();
+        return $this->sendSuccess($categories, 'Categories retrieved successfully');
+    }
+
 
 
     public function getComments($artworkId){
