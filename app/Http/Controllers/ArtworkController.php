@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Artwork;
+use App\Models\ArtworkComment;
 use App\Models\ArtworkImage;
 use App\Models\ArtworkLike;
 use Illuminate\Http\Request;
@@ -261,6 +262,7 @@ class ArtworkController extends ApiBaseController
         return $this->sendSuccess($userArtworks, 'User artworks retrieved successfully');
     }
 
+
     public function getAllUngrouped(Request $request)
     {
         $pageSize = $request->query('pageSize', 10);
@@ -280,8 +282,34 @@ class ArtworkController extends ApiBaseController
         return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
     }
 
+    public function comment(Request $request, $artwork){
+
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->toArray());
+        }
+
+        $comment = ArtworkComment::create([
+            'artwork_id' => $artwork,
+            'user_id' => Auth::id(),
+            'content' => $request->input('content'),
+        ]);
+
+        return $this->sendSuccess($comment, 'Comment added successfully.');
+    }
+
+    public function getComments($artworkId){
+        $comments = ArtworkComment::where('artwork_id', $artworkId)->with('user.profile')->get();
+        return $this->sendSuccess($comments, 'comments fetched');
+    }
+
     private function isLiked($artworkId, $userId)
     {
         return ArtworkLike::where('user_id', $userId)->where('artwork_id', $artworkId)->exists();
     }
+
+
 }
