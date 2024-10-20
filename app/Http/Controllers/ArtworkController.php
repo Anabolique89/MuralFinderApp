@@ -285,7 +285,7 @@ class ArtworkController extends ApiBaseController
     public function comment(Request $request, $artwork){
 
         $validator = Validator::make($request->all(), [
-            'comment' => 'required|string',
+            'content' => 'required|string',
         ]);
 
         if ($validator->fails()) {
