@@ -18,6 +18,13 @@ class SocialAuthController extends ApiBaseController
         //     return $this->sendError('Provider not supported.', JsonResponse::HTTP_BAD_REQUEST);
         // }
 
+        if($provider != 'google')
+        {
+            return redirect('https://www.muralfinder.net/unsupported');
+        }
+
+
+
         return Socialite::driver($provider)->stateless()->redirect();
     }
 
