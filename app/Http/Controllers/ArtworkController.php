@@ -35,6 +35,7 @@ class ArtworkController extends ApiBaseController
             $itemsWithLikedProperty = $items->map(fn ($artwork) => [
                 'id' => $artwork->id,
                 'title' => $artwork->title,
+                'image_path' => $artwork->image_path,
                 'category' => $artwork->category?->name ?? 'others',
                 'user' => $artwork->user->profile,
                 'likes_count' => $artwork->likes_count,

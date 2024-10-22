@@ -9,4 +9,6 @@ enum ActivityType: string
     case ARTWORK_LIKED = 'artwork_liked';
     case ARTWORK_COMMENTED = 'artwork_commented';
     case POST_SHARED = 'post_shared';
+
+    case USER_FOLLOWED = 'user_followed';
 }
