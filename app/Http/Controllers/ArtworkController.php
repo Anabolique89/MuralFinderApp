@@ -84,7 +84,7 @@ class ArtworkController extends ApiBaseController
 
         $artworkData = $validator->validated();
         $artworkData['user_id'] = Auth::id();
-        $artworkData['image_path'] = null;
+        $artworkData['image_path'] = "null";
 
         $artwork = Artwork::create($artworkData);
         $imagePaths = [];
