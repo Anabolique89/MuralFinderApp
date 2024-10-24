@@ -112,7 +112,9 @@ class ProfileApiController extends ApiBaseController
     {
         try {
             $user = User::withTrashed()
-                ->with('profile')
+                ->with(['profile' => function ($query) {
+                    $query->withTrashed();
+                }])
                 ->withCount('followers')
                 ->withCount('followings')
                 ->find($id);
@@ -127,6 +129,7 @@ class ProfileApiController extends ApiBaseController
             return $this->sendError('Internal Server Error', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 
