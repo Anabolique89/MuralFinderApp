@@ -111,7 +111,8 @@ class ProfileApiController extends ApiBaseController
     public function show($id)
     {
         try {
-            $user = User::with('profile')
+            $user = User::withTrashed()
+                ->with('profile')
                 ->withCount('followers')
                 ->withCount('followings')
                 ->find($id);
