@@ -15,6 +15,7 @@ use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\WallController;
 use App\Http\Controllers\Admin\DashboardStatisticController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -156,3 +157,12 @@ Route::get('users/search', [ProfileApiController::class, 'search']);
 Route::get('artworks/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
 Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
 Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComments']);
+
+
+Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
+
+// Fetch user notifications
+Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+
+// Mark a notification as read
+Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);

@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Enums\ActivityType;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
 class ActivityNotification extends Notification
@@ -45,5 +46,20 @@ class ActivityNotification extends Notification
             ActivityType::ARTWORK_COMMENTED => "{$this->user->name} commented on your artwork.",
             default => "{$this->user->name} performed an action.",
         };
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'activity_type' => $this->activityType->value,
+            'message' => $this->generateMessage(),
+            'entity_id' => $this->entity->id,
+            'user_id' => $this->user->id,
+        ]);
+    }
+
+    public function broadcastOn()
+    {
+        return ['user.' . $this->entity->user_id];
     }
 }

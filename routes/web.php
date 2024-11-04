@@ -3,11 +3,10 @@
 use Illuminate\Support\Facades\Route;
 
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\VerificationController;
-//use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Models\User;
+use App\Notifications\ActivityNotification;
+use App\Enums\ActivityType;
+use Illuminate\Http\Request;
 
 // // Registration Routes
 // Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -49,3 +48,7 @@ Route::get('/onboard3', function () {
 
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+
