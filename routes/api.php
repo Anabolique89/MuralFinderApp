@@ -110,6 +110,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{wallId}/comments/{commentId}', [WallController::class, 'deleteComment']);
         Route::put('/{wallId}/comments/{commentId}', [WallController::class, 'updateComment']);
     });
+
+
+    Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+    Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+
 });
 
 
@@ -159,10 +165,3 @@ Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
 Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComments']);
 
 
-Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
-
-// Fetch user notifications
-Route::get('/notifications', [NotificationController::class, 'getNotifications']);
-
-// Mark a notification as read
-Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
