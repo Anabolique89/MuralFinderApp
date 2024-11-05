@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Artwork;
 use App\Models\ArtworkCategory;
 use App\Models\ArtworkComment;
 use App\Models\ArtworkImage;
 use App\Models\ArtworkLike;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 class ArtworkController extends ApiBaseController
 {
@@ -172,6 +175,10 @@ class ArtworkController extends ApiBaseController
                 'artwork_id' => $artwork->id,
             ]);
 
+            // Notify the post owner
+            $artworkOwner = $artwork->user;
+            Notification::send($artworkOwner, new ActivityNotification(ActivityType::ARTWORK_LIKED, Auth::user(), $artwork));
+
             return $this->sendSuccess($like, 'Artwork liked successfully');
         } catch (\Exception $e) {
             Log::error('Error liking artwork: ' . $e->getMessage());
@@ -299,6 +306,10 @@ class ArtworkController extends ApiBaseController
             'user_id' => Auth::id(),
             'content' => $request->input('content'),
         ]);
+
+        $artwork = Artwork::find($artwork);
+
+        Notification::send($artwork->user, new ActivityNotification(ActivityType::ARTWORK_COMMENTED, Auth::user(), $comment));
 
         return $this->sendSuccess($comment, 'Comment added successfully.');
     }
