@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Post;
 use App\Models\PostComment;
 use App\Models\PostLike;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -231,33 +234,36 @@ class CommunityPostController extends ApiBaseController
     }
 
 
-    public function like(post $post)
-    {
-        $userId = Auth::id();
+    public function like(Post $post)
+{
+    $userId = Auth::id();
 
+    // Check if the user has already liked the post
+    $existingLike = PostLike::where('user_id', $userId)
+        ->where('post_id', $post->id)
+        ->first();
 
-        // Check if the user has already liked the post
-        $existingLike = PostLike::where('user_id', $userId)
-            ->where('post_id', $post->id)
-            ->first();
-
-        if ($existingLike) {
-            return $this->sendError('You have already liked this post');
-        }
-
-        try {
-            // Create a new like
-            $like = PostLike::create([
-                'user_id' => $userId,
-                'post_id' => $post->id,
-            ]);
-
-            return $this->sendSuccess($like, 'post liked successfully');
-        } catch (\Exception $e) {
-            Log::error('Error liking post: ' . $e->getMessage());
-            return $this->sendError('An error occurred while liking post');
-        }
+    if ($existingLike) {
+        return $this->sendError('You have already liked this post');
     }
+
+    try {
+        // Create a new like
+        $like = PostLike::create([
+            'user_id' => $userId,
+            'post_id' => $post->id,
+        ]);
+
+        // Notify the post owner
+        $postOwner = $post->user;
+        Notification::send($postOwner, new ActivityNotification(ActivityType::POST_LIKED, Auth::user(), $post));
+
+        return $this->sendSuccess($like, 'Post liked successfully');
+    } catch (\Exception $e) {
+        Log::error('Error liking post: ' . $e->getMessage());
+        return $this->sendError('An error occurred while liking the post');
+    }
+}
 
     public function unlike(post $post)
     {
@@ -284,29 +290,33 @@ class CommunityPostController extends ApiBaseController
     }
 
     public function comment(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'content' => 'required|string',
+{
+    $validator = Validator::make($request->all(), [
+        'content' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return $this->sendError($validator->errors()->toArray());
+    }
+
+    try {
+        // Create a new comment
+        $comment = PostComment::create([
+            'user_id' => Auth::id(),
+            'post_id' => $request->post_id,
+            'content' => $request->input('content'),
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors()->toArray());
-        }
+        // Notify the post owner
+        $postOwner = $comment->post->user; // Assuming the `PostComment` model has a `post` relationship
+        Notification::send($postOwner, new ActivityNotification(ActivityType::POST_COMMENTED, Auth::user(), $comment));
 
-        try {
-            // Create a new comment
-            $comment = PostComment::create([
-                'user_id' => Auth::id(),
-                'post_id' => $request->post_id,
-                'content' => $request->input('content'),
-            ]);
-
-            return $this->sendSuccess($comment, 'Comment added successfully');
-        } catch (\Exception $e) {
-            Log::error('Error adding comment: ' . $e->getMessage());
-            return $this->sendError('An error occurred while adding comment', 500);
-        }
+        return $this->sendSuccess($comment, 'Comment added successfully');
+    } catch (\Exception $e) {
+        Log::error('Error adding comment: ' . $e->getMessage());
+        return $this->sendError('An error occurred while adding comment');
     }
+}
 
     public function getPostComments($post)
     {
