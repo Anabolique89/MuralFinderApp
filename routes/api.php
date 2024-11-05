@@ -112,7 +112,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 
-    Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 
@@ -165,3 +164,4 @@ Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
 Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComments']);
 
 
+Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
