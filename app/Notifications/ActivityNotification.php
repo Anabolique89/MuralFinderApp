@@ -51,12 +51,20 @@ class ActivityNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'activity_type' => $this->activityType->value,
-            'message' => $this->generateMessage(),
-            'entity_id' => $this->entity->id,
-            'user_id' => $this->user->id,
+            'notification' => [
+                'id' => $this->id,
+                'data' => [
+                    'activity_type' => $this->activityType->value,
+                    'message' => $this->generateMessage(),
+                    'entity_id' => $this->entity->id,
+                    'user_id' => $this->user->id,
+                ],
+                'created_at' => now(),
+            ],
         ]);
     }
+
+
 
     public function broadcastOn()
     {
