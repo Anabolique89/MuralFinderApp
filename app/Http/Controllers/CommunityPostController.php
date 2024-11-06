@@ -255,7 +255,7 @@ class CommunityPostController extends ApiBaseController
         ]);
 
         // Notify the post owner
-        $postOwner = $post->user;
+        $postOwner = $post->load('user');
         Notification::send($postOwner, new ActivityNotification(ActivityType::POST_LIKED, Auth::user(), $post));
 
         return $this->sendSuccess($like, 'Post liked successfully');

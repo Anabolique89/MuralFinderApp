@@ -40,11 +40,11 @@ class ActivityNotification extends Notification
     private function generateMessage()
     {
         return match ($this->activityType) {
-            ActivityType::POST_LIKED => "{$this->user->name} liked your post.",
-            ActivityType::POST_COMMENTED => "{$this->user->name} commented on your post.",
-            ActivityType::ARTWORK_LIKED => "{$this->user->name} liked your artwork.",
-            ActivityType::ARTWORK_COMMENTED => "{$this->user->name} commented on your artwork.",
-            default => "{$this->user->name} performed an action.",
+            ActivityType::POST_LIKED => "{$this->user->username} liked your post.",
+            ActivityType::POST_COMMENTED => "{$this->user->username} commented on your post.",
+            ActivityType::ARTWORK_LIKED => "{$this->user->username} liked your artwork.",
+            ActivityType::ARTWORK_COMMENTED => "{$this->user->username} commented on your artwork.",
+            default => "{$this->user->username} performed an action.",
         };
     }
 
