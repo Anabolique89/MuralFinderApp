@@ -39,10 +39,7 @@ return [
                 'useTLS' => true,
                 'debug' => env('PUSHER_APP_DEBUG', false),
                 'log' => true,
-                'host' => env('PUSHER_APP_HOST', '127.0.0.1'),
-                'port' => env('PUSHER_APP_PORT', 6001),
-                'scheme' => env('PUSHER_APP_SCHEME', 'http'),
-                'encrypted' => env('PUSHER_APP_ENCRYPTED', true),
+                
 
             ],
         ],
