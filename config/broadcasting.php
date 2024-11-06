@@ -37,6 +37,9 @@ return [
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => true,
+                'debug' => env('PUSHER_APP_DEBUG', false),
+                'log' => true,
+
             ],
         ],
 
