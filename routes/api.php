@@ -176,4 +176,4 @@ Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
         Log::error('Broadcast auth failed:', ['error' => $e->getMessage()]);
         return response()->json(['error' => 'Broadcast authorization failed.'], 403);
     }
-});
+})->middleware('auth:sanctum');
