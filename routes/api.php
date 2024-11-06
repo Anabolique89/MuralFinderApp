@@ -18,8 +18,7 @@ use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Broadcast;
-
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -169,12 +168,12 @@ Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComment
 Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
 
 Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
-    \Log::debug('Broadcast auth request:', $request->all());
+    Log::debug('Broadcast auth request:', $request->all());
 
     try {
         return Broadcast::auth($request);
     } catch (\Exception $e) {
-        \Log::error('Broadcast auth failed:', ['error' => $e->getMessage()]);
+        Log::error('Broadcast auth failed:', ['error' => $e->getMessage()]);
         return response()->json(['error' => 'Broadcast authorization failed.'], 403);
     }
 });
