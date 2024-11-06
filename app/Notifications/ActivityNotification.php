@@ -70,4 +70,10 @@ class ActivityNotification extends Notification
     {
         return ['user.' . $this->entity->user_id];
     }
+
+    public function broadcastAs()
+    {
+        return 'ActivityNotification';
+    }
+
 }
