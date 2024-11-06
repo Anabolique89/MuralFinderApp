@@ -68,8 +68,9 @@ class ActivityNotification extends Notification
 
     public function broadcastOn()
     {
-        return ['user.' . $this->entity->user_id];
+        return ['private-user.' . $this->entity->user_id];
     }
+
 
     public function broadcastAs()
     {
