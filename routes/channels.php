@@ -18,3 +18,7 @@ Broadcast::channel('user.{id}', function ($user, $id) {
     Log::debug("User trying to authenticate", ['user_id' => $user->id, 'channel_id' => $id]);
     return true;
 });
+
+Broadcast::channel('notifications', function () {
+    return true; 
+});
