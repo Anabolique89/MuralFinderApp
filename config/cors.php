@@ -15,8 +15,8 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'api/broadcasting/auth'],
-    'allowed_origins' => ['http://localhost:5173', 'https://api.muralfinder.net'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_origins' => ['*'],
 
     'allowed_methods' => ['*'],
 
