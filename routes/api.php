@@ -169,5 +169,13 @@ Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComment
 Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
 
 Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
-    return Broadcast::auth($request);
+    \Log::debug('Broadcast auth request:', $request->all());
+
+    try {
+        // Try broadcasting auth
+        return Broadcast::auth($request);
+    } catch (\Exception $e) {
+        \Log::error('Broadcast auth failed: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
 });
