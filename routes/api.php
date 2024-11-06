@@ -172,10 +172,9 @@ Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
     \Log::debug('Broadcast auth request:', $request->all());
 
     try {
-        // Try broadcasting auth
         return Broadcast::auth($request);
     } catch (\Exception $e) {
-        \Log::error('Broadcast auth failed: ' . $e->getMessage());
-        return response()->json(['error' => $e->getMessage()], 400);
+        \Log::error('Broadcast auth failed:', ['error' => $e->getMessage()]);
+        return response()->json(['error' => 'Broadcast authorization failed.'], 403);
     }
 });
