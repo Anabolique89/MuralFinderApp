@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\DashboardStatisticController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TrashController;
+use Illuminate\Support\Facades\Broadcast;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -165,3 +167,7 @@ Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComment
 
 
 Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
+
+Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
+    return Broadcast::auth($request);
+});
