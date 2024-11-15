@@ -42,15 +42,20 @@ class ProductApiController extends ApiBaseController
 
     public function update(Request $request, Product $product)
     {
-        $validatedData = $request->validate([
-            'name' => 'sometimes|string|max:255',
+
+        $validator = Validator::make($request->all(),[
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'sometimes|numeric',
+            'price' => 'required|numeric',
             'image_url' => 'nullable|url',
-            'affiliate_link' => 'sometimes|url',
+            'affiliate_link' => 'required|url',
         ]);
 
-        $product->update($validatedData);
+        if ($validator->fails()) {
+            return $this->validationError($validator->errors()->toArray());
+        }
+
+        $product->update($request->all());
 
         return $this->sendSuccess($product, "updated");
     }
