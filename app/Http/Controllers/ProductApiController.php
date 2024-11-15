@@ -24,6 +24,7 @@ class ProductApiController extends ApiBaseController
             'price' => 'required|numeric',
             'image_url' => 'nullable|url',
             'affiliate_link' => 'required|url',
+            'category' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -54,6 +55,8 @@ class ProductApiController extends ApiBaseController
         if ($validator->fails()) {
             return $this->validationError($validator->errors()->toArray());
         }
+
+
 
         $product->update($request->all());
 

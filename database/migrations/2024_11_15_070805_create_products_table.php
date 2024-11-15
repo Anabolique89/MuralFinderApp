@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('image_url')->nullable();
             $table->string('affiliate_link');
+            $table->string('category')->nullable();
             $table->timestamps();
         });
     }
