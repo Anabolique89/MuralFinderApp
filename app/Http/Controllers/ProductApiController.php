@@ -6,6 +6,7 @@ use App\Http\Controllers\Base\ApiBaseController;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductApiController extends ApiBaseController
 {
@@ -17,7 +18,7 @@ class ProductApiController extends ApiBaseController
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
@@ -25,7 +26,11 @@ class ProductApiController extends ApiBaseController
             'affiliate_link' => 'required|url',
         ]);
 
-        $product = Product::create($validatedData);
+        if ($validator->fails()) {
+            return $this->validationError($validator->errors()->toArray());
+        }
+
+        $product = Product::create($request->all());
 
         return $this->sendSuccess($product, "created", 201);
     }
