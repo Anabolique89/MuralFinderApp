@@ -21,8 +21,9 @@ class DashboardStatisticController extends ApiBaseController
         $productsCount = Product::count();
         $recentArtworks = Artwork::with('user', 'category')->get()->take(10);
         $users = User::with('profile')->paginate(10);
+        $products= Product::paginate(10);
 
-        $data = compact('artworkCount', 'postCount', 'userCount', 'wallsCount', 'recentArtworks', 'users', 'productsCount');
+        $data = compact('artworkCount', 'postCount', 'userCount', 'wallsCount', 'recentArtworks', 'users', 'productsCount', 'products');
 
         return $this->sendSuccess($data, 'Statistics retrieved successfully');
     }
