@@ -153,6 +153,7 @@ Route::group(['prefix' => 'admin/statistics'], function () {
     Route::get('/posts', [DashboardStatisticController::class, 'getPostsStatistics']);
     Route::get('/walls', [DashboardStatisticController::class, 'getWallsStatistics']);
     Route::get('/users', [DashboardStatisticController::class, 'getUserStatistics']);
+    Route::get('/products', [DashboardStatisticController::class, 'getProductsStatistics']);
 });
 
 Route::group(['prefix' => 'admin/trash'], function () {

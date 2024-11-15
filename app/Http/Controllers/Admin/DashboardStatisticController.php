@@ -6,6 +6,7 @@ use App\Http\Controllers\Base\ApiBaseController;
 use Illuminate\Http\Request;
 use App\Models\Artwork;
 use App\Models\Post;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Wall;
 
@@ -17,6 +18,7 @@ class DashboardStatisticController extends ApiBaseController
         $postCount = Post::count();
         $userCount = User::count();
         $wallsCount = Wall::count();
+        $productsCount = Product::count();
         $recentArtworks = Artwork::with('user', 'category')->get()->take(10);
         $users = User::with('profile')->paginate(10);
 
@@ -145,6 +147,30 @@ class DashboardStatisticController extends ApiBaseController
         return $this->sendSuccess($data, 'User statistics retrieved successfully');
     }
 
+
+    public function getProductsStatistics()
+{
+    $productsCount = Product::count();
+    $deletedProducts = Product::onlyTrashed()->count();
+
+    $data = [
+        'productsCount' => $productsCount,
+        'deletedProducts' => $deletedProducts,
+    ];
+
+    return $this->sendSuccess($data, 'Product statistics retrieved successfully');
+}
+
+public function getProducts(Request $request)
+{
+    $page = $request->input('page', 1);
+    $perPage = 10;
+
+    // Paginate products without additional relationships
+    $products = Product::paginate($perPage, ['*'], 'page', $page);
+
+    return $this->sendSuccess($products, 'Products retrieved successfully');
+}
 
 
 
