@@ -6,13 +6,14 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ApiBaseController extends Controller
 {
     protected $statusCode = JsonResponse::HTTP_OK;
 
-    public function sendSuccess($data = [], $message = '')
+    public function sendSuccess($data = [], $message = '', $code=200)
     {
         return response()->json([
             'success' => true,
@@ -52,7 +53,7 @@ class ApiBaseController extends Controller
     {
         try {
             $path = $file->store($folder, $disk);
-            return \Storage::url($path);
+            return Storage::url($path);
         } catch (\Exception $e) {
             Log::error('Error uploading image: ' . $e->getMessage());
             return null;

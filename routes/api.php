@@ -16,6 +16,7 @@ use App\Http\Controllers\WallController;
 use App\Http\Controllers\Admin\DashboardStatisticController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProductApiController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
@@ -115,6 +116,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+
+    Route::apiResource('products', ProductApiController::class);
 
 });
 
