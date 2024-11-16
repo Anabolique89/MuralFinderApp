@@ -28,6 +28,7 @@ class ArtworkController extends ApiBaseController
         $artworks = Artwork::with(['category', 'user.profile', 'likes' => function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }])
+        ->whereHas('user')
         ->withCount('likes', 'comments')
         ->paginate($pageSize);
 
