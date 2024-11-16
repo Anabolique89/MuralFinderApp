@@ -23,6 +23,7 @@ class CommunityPostController extends ApiBaseController
     {
         $pageSize = $request->query('pageSize', 10); // Default page size is 10 if not provided
         $posts = Post::with('user.profile')
+            ->whereHas('user')
             ->withCount('likes') // Count the number of likes
             ->withCount('comments') // Count the number of comments
             ->paginate($pageSize);
