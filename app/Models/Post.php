@@ -27,4 +27,10 @@ class Post extends Model
     {
         return $this->hasMany(PostComment::class);
     }
+
+    public function reports()
+{
+    return $this->morphMany(Report::class, 'reportable');
+}
+
 }

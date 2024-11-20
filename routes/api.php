@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\DashboardStatisticController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductApiController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
@@ -137,6 +138,17 @@ Route::prefix('posts')->group(function () {
     Route::get('{post}', [CommunityPostController::class, 'show'])->name('posts.show');
     Route::get('{post}/comments', [CommunityPostController::class, 'getPostComments'])->name('posts.loadcomments');
     Route::get('post/search', [CommunityPostController::class, 'search'])->name('posts.search'); // Use 'find' or another descriptive prefix
+});
+
+Route::prefix('reports')->group(function () {
+    Route::get('/', [ReportsController::class, 'index']);
+    Route::post('/', [ReportsController::class, 'store']);
+    Route::get('/{id}', [ReportsController::class, 'show']);
+    Route::put('/{id}', [ReportsController::class, 'update']);
+    Route::delete('/{id}', [ReportsController::class, 'destroy']);
+    Route::get('/filter/user/{userId}', [ReportsController::class, 'filterByUser']);
+    Route::get('/filter/type/{type}', [ReportsController::class, 'filterByType']);
+    Route::get('/search', [ReportsController::class, 'search']);
 });
 
 Route::group(['prefix' => 'walls'], function () {
