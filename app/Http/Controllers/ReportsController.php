@@ -26,15 +26,30 @@ class ReportsController extends ApiBaseController
 
     public function store(Request $request)
     {
+        $validTypes = [
+            'post' => 'App\Models\Post',
+            'artwork' => 'App\Models\Artwork',
+        ];
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'reportable_id' => 'required|integer',
+            'reportable_type' => 'required|string|in:' . implode(',', array_keys($validTypes)),
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $reportableType = $validTypes[$validated['reportable_type']];
+
         $report = Report::create([
-            'user_id' => $request->user_id,
-            'reportable_id' => $request->reportable_id,
-            'reportable_type' => $request->reportable_type,
-            'reason' => $request->reason,
+            'user_id' => $validated['user_id'],
+            'reportable_id' => $validated['reportable_id'],
+            'reportable_type' => $reportableType,
+            'reason' => $validated['reason'],
         ]);
 
         return $this->sendSuccess($report, 'Report created successfully', 201);
     }
+
 
     public function show($id)
     {
