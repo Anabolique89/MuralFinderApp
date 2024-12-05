@@ -79,7 +79,7 @@ class ArtworkController extends ApiBaseController
             'title' => 'required|string',
             'description' => 'required|string',
             'artwork_category_id' => 'required|exists:artwork_categories,id',
-            'images.*' => 'nullable|image|max:4096',
+            'images.*' => 'nullable|mimes:jpeg,jpg,png,gif,mp4,mov,avi,wmv|max:20480',
         ]);
 
         if ($validator->fails()) {

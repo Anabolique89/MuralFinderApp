@@ -53,7 +53,7 @@ class ReportsController extends ApiBaseController
 
     public function show($id)
     {
-        $report = Report::findOrFail($id);
+        $report = Report::with('reportable')->findOrFail($id);
         return $this->sendSuccess($report, 'Report retrieved successfully');
     }
 
