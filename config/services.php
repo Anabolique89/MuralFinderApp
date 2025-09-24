@@ -37,4 +37,9 @@ return [
         'redirect' => 'https://api.muralfinder.net/api/auth/google/callback',
     ],
 
+    'fcm' => [
+        'server_key' => env('FCM_SERVER_KEY'),
+        'sender_id' => env('FCM_SENDER_ID'),
+    ],
+
 ];

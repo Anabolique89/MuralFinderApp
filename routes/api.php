@@ -1,22 +1,27 @@
 <?php
 
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginApiController;
 use App\Http\Controllers\Auth\LogoutApiController;
-use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RefreshTokenController;
 use App\Http\Controllers\Auth\RegisterApiController;
-use App\Http\Controllers\Auth\ResendEmailVerificationController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialAuthController;
-use App\Http\Controllers\CommunityPostController;
+
+// API Controllers
+use App\Http\Controllers\Api\ArtworkApiController;
+use App\Http\Controllers\Api\WallApiController;
+use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\SearchApiController;
+use App\Http\Controllers\Api\NotificationApiController;
+use App\Http\Controllers\Api\PostApiController;
+use App\Http\Controllers\Api\DeviceTokenController;
+
+// Non-API Controllers
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\FellowshipController;
-use App\Http\Controllers\ProfileApiController;
-use App\Http\Controllers\ArtworkController;
-use App\Http\Controllers\WallController;
 use App\Http\Controllers\Admin\DashboardStatisticController;
-use App\Http\Controllers\Auth\PasswordChangeController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProductApiController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Broadcast;
@@ -39,105 +44,170 @@ use Illuminate\Support\Facades\Route;
  * Unauthenticated routes
  */
 
-Route::post('register', RegisterApiController::class);
-Route::get('/verify-email/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
-Route::post('/email/verification/resend', ResendEmailVerificationController::class)->name('email.send');
-Route::post('login', LoginApiController::class);
-Route::get('auth/{provider}', [SocialAuthController::class, 'redirectToProvider']);
-Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+// Authentication routes
+Route::prefix('auth')->group(function () {
+    Route::post('/register', RegisterApiController::class);
+    Route::post('/login', LoginApiController::class);
 
-Route::post('/forgot-password', [PasswordResetController::class, 'sendPasswordResetToken'])->name('password.email');
+    // Password reset
+    Route::post('/forgot-password', ForgotPasswordController::class);
+    Route::post('/reset-password', ResetPasswordController::class);
 
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+    // Email verification
+    Route::get('/email/verify/{id}/{hash}', EmailVerificationController::class)->name('verification.verify');
+
+    // Social authentication
+    Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider']);
+    Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+});
 
 
 /*
  * Authenticated routes
  */
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', LogoutApiController::class);
+    // Authentication
+    Route::post('/auth/logout', LogoutApiController::class);
+    Route::post('/auth/refresh-token', RefreshTokenController::class);
+    Route::post('/auth/email/verify', [EmailVerificationController::class, 'verify']);
+    Route::post('/auth/email/resend', [EmailVerificationController::class, 'resend']);
 
-    Route::put('change-password', PasswordChangeController::class)->name('profile.password.update');
-
-    Route::delete('delete/user/{id}', [ProfileApiController::class, 'deleteUser']);
-    Route::prefix('profiles')->group(function () {
-        Route::post('/', [ProfileApiController::class, 'create']);
-        Route::get('{id}', [ProfileApiController::class, 'show']);
-        Route::put('{id}', [ProfileApiController::class, 'update']);
-        Route::delete('{id}', [ProfileApiController::class, 'destroy']);
-        Route::put('update/{id}/role', [ProfileApiController::class, 'updateRole'])->name('profile.role.update');
-
-        Route::post('{id}/image', [ProfileApiController::class, 'uploadProfileImage']);
+    // User Management
+    Route::prefix('user')->group(function () {
+        Route::get('/profile', [UserApiController::class, 'profile']);
+        Route::put('/profile', [UserApiController::class, 'updateProfile']);
+        Route::post('/profile/image', [UserApiController::class, 'uploadProfileImage']);
+        Route::put('/change-password', [UserApiController::class, 'changePassword']);
+        Route::post('/deactivate', [UserApiController::class, 'deactivateAccount']);
+        Route::get('/activity-feed', [UserApiController::class, 'activityFeed']);
     });
 
-    Route::prefix('fellowships')->group(function () {
-        Route::post('follow', [FellowshipController::class, 'followUser']);
-        Route::post('unfollow', [FellowshipController::class, 'unfollowUser']);
-        Route::get('followers', [FellowshipController::class, 'getUserFollowers']);
-        Route::get('followings', [FellowshipController::class, 'getUserFollowings']);
-        Route::get('isFollowing/{userId}', [FellowshipController::class, 'isFollowingUser']);
+    // User Social Features (Authenticated)
+    Route::prefix('users')->group(function () {
+        Route::post('/{username}/follow', [UserApiController::class, 'toggleFollow']);
     });
+// muralfinder.net
+// server ip
+// nginx
 
+// api.muralfinder.net
+// apiv2.muralfinder.net
+    // Artworks
     Route::prefix('artworks')->group(function () {
-        Route::post('', [ArtworkController::class, 'store']);
-        Route::post('/{artwork}', [ArtworkController::class, 'update']);
-        Route::delete('/{artwork}', [ArtworkController::class, 'destroy']);
-        Route::post('/{artwork}/image', [ArtworkController::class, 'changeImage']);
-        Route::delete('/{artwork}/unlike', [ArtworkController::class, 'unlike']);
-        Route::post('/{artwork}/like', [ArtworkController::class, 'like']);
-        Route::post('/{artwork}/comment', [ArtworkController::class, 'comment']);
-        Route::get('/{artwork}/comments', [ArtworkController::class, 'getComments']);
-        Route::delete('/comments/{comment}', [ArtworkController::class, 'deleteComment']);
-        Route::put('/comments/{comment}/edit', [ArtworkController::class, 'editComment']);
+        Route::post('/', [ArtworkApiController::class, 'store']); // CREATE   // POST api.muralfinder.net/artworks/
+        Route::put('/{id}', [ArtworkApiController::class, 'update']); // EDIT / UPDATE
+        Route::delete('/{id}', [ArtworkApiController::class, 'destroy']); // DELETE
+        Route::post('/{id}/like', [ArtworkApiController::class, 'toggleLike']);
+        Route::get('/{id}/comments', [ArtworkApiController::class, 'comments']);
+        Route::post('/{id}/comments', [ArtworkApiController::class, 'addComment']);
     });
 
+    // Walls
+    Route::prefix('walls')->group(function () {
+        Route::post('/', [WallApiController::class, 'store']);
+        Route::put('/{id}', [WallApiController::class, 'update']);
+        Route::delete('/{id}', [WallApiController::class, 'destroy']);
+        Route::post('/{id}/like', [WallApiController::class, 'toggleLike']);
+        Route::post('/{id}/comments', [WallApiController::class, 'addComment']);
+        Route::post('/{id}/checkin', [WallApiController::class, 'checkIn']);
+    });
+
+    // Posts
     Route::prefix('posts')->group(function () {
-        Route::post('', [CommunityPostController::class, 'store']);
-        Route::post('/{post}', [CommunityPostController::class, 'update']);
-        Route::delete('/{post}', [CommunityPostController::class, 'destroy']);
-        Route::post('/{post}/image', [CommunityPostController::class, 'changeImage']);
-        Route::delete('/{post}/unlike', [CommunityPostController::class, 'unlike']);
-        Route::post('/{post}/like', [CommunityPostController::class, 'like']);
-        Route::post('/{posts}/comment', [CommunityPostController::class, 'comment']);
-        Route::put('comments/{comment}/edit', [CommunityPostController::class, 'editComment']);
-        Route::delete('/comments/{comment}', [CommunityPostController::class, 'deleteComment']);
+        Route::post('/', [PostApiController::class, 'store']);
+        Route::put('/{id}', [PostApiController::class, 'update']);
+        Route::delete('/{id}', [PostApiController::class, 'destroy']);
+        Route::post('/{id}/like', [PostApiController::class, 'toggleLike']);
+        Route::get('/{id}/comments', [PostApiController::class, 'comments']);
+        Route::post('/{id}/comments', [PostApiController::class, 'addComment']);
     });
 
-    Route::group(['prefix' => 'walls'], function () {
-        Route::post('/', [WallController::class, 'store']);
-        Route::post('/{id}', [WallController::class, 'update']);
-        Route::delete('/{id}', [WallController::class, 'destroy']);
-        Route::put('/{id}/verify', [WallController::class, 'verifyWall']);
-        Route::post('/{id}/like', [WallController::class, 'toggleLike']);
-        Route::post('/{id}/comments', [WallController::class, 'addComment']);
-        Route::delete('/{wallId}/comments/{commentId}', [WallController::class, 'deleteComment']);
-        Route::put('/{wallId}/comments/{commentId}', [WallController::class, 'updateComment']);
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationApiController::class, 'index']);
+        Route::get('/unread-count', [NotificationApiController::class, 'unreadCount']);
+        Route::post('/{id}/read', [NotificationApiController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [NotificationApiController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationApiController::class, 'destroy']);
+        Route::get('/preferences', [NotificationApiController::class, 'preferences']);
+        Route::put('/preferences', [NotificationApiController::class, 'updatePreferences']);
     });
 
+    // Device Tokens for Push Notifications
+    Route::prefix('device-tokens')->group(function () {
+        Route::get('/', [DeviceTokenController::class, 'index']);
+        Route::post('/', [DeviceTokenController::class, 'register']);
+        Route::put('/{id}', [DeviceTokenController::class, 'update']);
+        Route::post('/{id}/deactivate', [DeviceTokenController::class, 'deactivate']);
+        Route::delete('/{id}', [DeviceTokenController::class, 'destroy']);
+    });
 
-    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
-    Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
-
-    Route::apiResource('products', ProductApiController::class);
+    // Legacy API endpoints (to be deprecated)
+    Route::get('/contact', [ContactController::class, 'contactUs']);
 
 });
 
+// Public API Routes
+Route::prefix('v1')->group(function () {
+    // Artworks (Public)
+    Route::prefix('artworks')->group(function () {
+        Route::get('/', [ArtworkApiController::class, 'index']);
+        Route::get('/featured', [ArtworkApiController::class, 'featured']);
+        Route::get('/nearby', [ArtworkApiController::class, 'nearby']);
+        Route::get('/search', [ArtworkApiController::class, 'search']);
+        Route::get('/{id}', [ArtworkApiController::class, 'show']);
+    });
 
-Route::prefix('artworks')->group(function () {
-    Route::get('', [ArtworkController::class, 'index'])->name('artworks.index');
-    Route::get('/artwork/withliked', [ArtworkController::class, 'indexWithLiked'])->name('artworks.grouped');
-    Route::get('/artwork/ungrouped', [ArtworkController::class, 'getAllUngrouped'])->name('artworks.ungrouped');
-    Route::get('{artwork}', [ArtworkController::class, 'show'])->name('artworks.show');
-    Route::get('artwork/search', [ArtworkController::class, 'search'])->name('artworks.search'); // Use 'find' or another descriptive prefix
-    Route::get('/categories/fetch', [ArtworkController::class, 'getCategories'])->name('artwork.categories');
+    // Walls (Public)
+    Route::prefix('walls')->group(function () {
+        Route::get('/', [WallApiController::class, 'index']);
+        Route::get('/nearby', [WallApiController::class, 'nearby']);
+        Route::get('/search', [WallApiController::class, 'search']);
+        Route::get('/{id}', [WallApiController::class, 'show']);
+        Route::get('/{id}/comments', [WallApiController::class, 'comments']);
+    });
+
+    // Posts (Public)
+    Route::prefix('posts')->group(function () {
+        Route::get('/', [PostApiController::class, 'index']);
+        Route::get('/featured', [PostApiController::class, 'featured']);
+        Route::get('/trending', [PostApiController::class, 'trending']);
+        Route::get('/search', [PostApiController::class, 'search']);
+        Route::get('/{id}', [PostApiController::class, 'show']);
+    });
+
+    // Users (Public)
+    Route::prefix('users')->group(function () {
+        Route::get('/search', [UserApiController::class, 'search']);
+        Route::get('/{username}', [UserApiController::class, 'show']);
+        Route::get('/{username}/artworks', [UserApiController::class, 'artworks']);
+        Route::get('/{username}/walls', [UserApiController::class, 'walls']);
+        Route::get('/{username}/posts', [UserApiController::class, 'posts']);
+        Route::get('/{username}/followers', [UserApiController::class, 'followers']);
+        Route::get('/{username}/following', [UserApiController::class, 'following']);
+    });
+
+    // Search (Public)
+    Route::prefix('search')->group(function () {
+        Route::get('/global', [SearchApiController::class, 'global']);
+        Route::get('/artworks', [SearchApiController::class, 'artworks']);
+        Route::get('/posts', [SearchApiController::class, 'posts']);
+        Route::get('/walls', [SearchApiController::class, 'walls']);
+        Route::get('/users', [SearchApiController::class, 'users']);
+        Route::get('/suggestions', [SearchApiController::class, 'suggestions']);
+        Route::get('/trending', [SearchApiController::class, 'trending']);
+        Route::post('/click', [SearchApiController::class, 'recordClick']);
+        Route::post('/advanced', [SearchApiController::class, 'advanced']);
+    });
 });
 
-Route::prefix('posts')->group(function () {
-    Route::get('', [CommunityPostController::class, 'index'])->name('posts.index');
-    Route::get('post/{userId}/get', [CommunityPostController::class, 'postsByUser']);
-    Route::get('{post}', [CommunityPostController::class, 'show'])->name('posts.show');
-    Route::get('{post}/comments', [CommunityPostController::class, 'getPostComments'])->name('posts.loadcomments');
-    Route::get('post/search', [CommunityPostController::class, 'search'])->name('posts.search'); // Use 'find' or another descriptive prefix
+// Legacy routes (for backward compatibility) - DEPRECATED
+// These routes are maintained for backward compatibility but should use new API controllers
+Route::prefix('legacy')->group(function () {
+    // Categories endpoint (still needed)
+    Route::get('/categories', function () {
+        return app(\App\Repositories\CategoryRepository::class)->getActive();
+    });
 });
 
 Route::prefix('reports')->group(function () {
@@ -151,12 +221,7 @@ Route::prefix('reports')->group(function () {
     Route::get('/search', [ReportsController::class, 'search']);
 });
 
-Route::group(['prefix' => 'walls'], function () {
-    Route::get('/', [WallController::class, 'index']);
-    Route::get('/{id}', [WallController::class, 'show']);
-    Route::get('/{id}/comments', [WallController::class, 'getComments']);
-    Route::get('/search', [WallController::class, 'search']);
-});
+// Walls legacy routes removed - use /api/v1/walls instead
 
 
 Route::group(['prefix' => 'admin/statistics'], function () {
@@ -174,14 +239,35 @@ Route::group(['prefix' => 'admin/trash'], function () {
     Route::delete('/{model}/{id}', [TrashController::class, 'delete']);
 });
 
+// Admin CRUD routes (protected by auth middleware)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::group(['prefix' => 'admin'], function () {
+        // User management
+        Route::put('/users/{userId}/role', [AdminController::class, 'updateUserRole']);
+        Route::post('/users/{userId}/ban', [AdminController::class, 'banUser']);
+        Route::post('/users/{userId}/unban', [AdminController::class, 'unbanUser']);
+        Route::delete('/users/{userId}', [AdminController::class, 'deleteUser']);
+
+        // Artwork management
+        Route::put('/artworks/{artworkId}/status', [AdminController::class, 'updateArtworkStatus']);
+        Route::delete('/artworks/{artworkId}', [AdminController::class, 'deleteArtwork']);
+
+        // Wall management
+        Route::put('/walls/{wallId}/status', [AdminController::class, 'updateWallStatus']);
+        Route::delete('/walls/{wallId}', [AdminController::class, 'deleteWall']);
+
+        // Post management
+        Route::put('/posts/{postId}/status', [AdminController::class, 'updatePostStatus']);
+        Route::delete('/posts/{postId}', [AdminController::class, 'deletePost']);
+
+        // Settings management
+        Route::get('/settings', [AdminController::class, 'getSettings']);
+        Route::put('/settings', [AdminController::class, 'updateSettings']);
+    });
+});
+
+// Contact endpoint
 Route::post('/contact', [ContactController::class, 'contactUs']);
-Route::get('users/search', [ProfileApiController::class, 'search']);
-Route::get('artworks/users/{userId}', [ArtworkController::class, 'getUserArtworks']);
-Route::get('profiles/{id}', [ProfileApiController::class, 'show']);
-Route::get('artworks/{artwork}/comments', [ArtworkController::class, 'getComments']);
-
-
-Route::get('/test-notification/{userId}/{entityType}/{entityId}', [NotificationController::class, 'testNotification']);
 
 Route::post('broadcasting/auth', function (Illuminate\Http\Request $request) {
     Log::debug('Broadcast auth request:', $request->all());

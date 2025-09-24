@@ -118,7 +118,7 @@ class DashboardStatisticController extends ApiBaseController
 
         // Paginate the users
         $users = User::with('profile')
-            ->withCount(['posts', 'artworks', 'followers', 'followings'])
+            ->withCount(['posts', 'artworks', 'followers', 'following'])
             ->paginate($perPage);
 
         // Map user statistics
@@ -132,7 +132,7 @@ class DashboardStatisticController extends ApiBaseController
                 'postsCount' => $user->posts_count,
                 'artworksCount' => $user->artworks_count,
                 'followersCount' => $user->followers_count,
-                'followingsCount' => $user->followings_count,
+                'followingsCount' => $user->following_count,
             ];
         });
 
