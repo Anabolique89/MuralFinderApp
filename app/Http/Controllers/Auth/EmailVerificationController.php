@@ -62,17 +62,17 @@ class EmailVerificationController extends ApiBaseController
             $user = \App\Models\User::find($request->id);
 
             if (!$user) {
-                return redirect()->intended(env('FRONTEND_URL') . '/login?verified=0');
+                return redirect()->intended(config('app.frontend_url') . '/login?verified=0');
             }
 
             if ($user->markEmailAsVerified()) {
                 event(new \Illuminate\Auth\Events\Verified($user));
             }
 
-            return redirect()->intended(env('FRONTEND_URL') . '/login?verified=1');
+            return redirect()->intended(config('app.frontend_url') . '/login?verified=1');
         } catch (\Exception $e) {
             logger()->error('Email verification error: ' . $e->getMessage());
-            return redirect()->intended(env('FRONTEND_URL') . '/login?verified=0');
+            return redirect()->intended(config('app.frontend_url') . '/login?verified=0');
         }
     }
 }
