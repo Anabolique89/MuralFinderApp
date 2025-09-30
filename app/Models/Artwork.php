@@ -43,6 +43,11 @@ class Artwork extends Model
         'slug',
         'is_featured',
         'featured_at',
+        'ai_generated',
+        'ai_archetype',
+        'ai_service',
+        'ai_prompt',
+        'ai_model_version',
     ];
 
     protected $casts = [

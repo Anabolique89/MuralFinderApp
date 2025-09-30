@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Base\ApiBaseController;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail as FacadesMail;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 
@@ -29,7 +31,7 @@ class ContactController extends ApiBaseController
             return $this->sendSuccess($message, 'Message sent successfully!');
 
         } catch (\Exception $e) {
-            \Log::error($e->getMessage());
+            Log::error('ContactController.contactUs() error: ' . $e->getMessage());
             return $this->sendError("Internal server error, please try again".$e->getMessage());
         }
 
@@ -40,7 +42,7 @@ class ContactController extends ApiBaseController
     private function sendEmailToAdmin(Message $message)
     {
         $adminEmail = env('ADMIN_EMAIL');
-        Mail::to($adminEmail)->send(new \App\Mail\MessageReceived($message));
+        FacadesMail::to($adminEmail)->send(new \App\Mail\MessageReceived($message));
     }
 
 

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\DeviceTokenController;
+use App\Http\Controllers\Api\AIGeneratorController;
 
 // Non-API Controllers
 use App\Http\Controllers\ContactController;
@@ -142,6 +143,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [DeviceTokenController::class, 'destroy']);
     });
 
+    // AI Generator
+    Route::prefix('ai-generator')->group(function () {
+        Route::post('/generate-archetype', [AIGeneratorController::class, 'generateArchetype']);
+        Route::post('/forge-saga', [AIGeneratorController::class, 'forgeSaga']);
+        Route::post('/upload-as-artwork', [AIGeneratorController::class, 'uploadAsArtwork']);
+    });
+
     // Legacy API endpoints (to be deprecated)
     Route::get('/contact', [ContactController::class, 'contactUs']);
 
@@ -198,6 +206,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/trending', [SearchApiController::class, 'trending']);
         Route::post('/click', [SearchApiController::class, 'recordClick']);
         Route::post('/advanced', [SearchApiController::class, 'advanced']);
+    });
+
+    // AI Generator (Public)
+    Route::prefix('ai-generator')->group(function () {
+        Route::get('/archetypes', [AIGeneratorController::class, 'getArchetypes']);
     });
 });
 
