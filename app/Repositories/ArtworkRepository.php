@@ -28,13 +28,16 @@ class ArtworkRepository extends BaseRepository
     /**
      * Get published artworks
      */
-    public function getPublished(int $perPage = 15): LengthAwarePaginator
+    public function getPublished(int $perPage = 15, string $sortBy = 'newest', string $sortOrder = 'desc'): LengthAwarePaginator
     {
-        return $this->model
+        $query = $this->model
             ->published()
-            ->with(['user.profile', 'category', 'wall'])
-            ->orderByDesc('created_at')
-            ->paginate($perPage);
+            ->with(['user.profile', 'category', 'wall']);
+
+        // Apply sorting
+        $this->applySorting($query, $sortBy, $sortOrder);
+
+        return $query->paginate($perPage);
     }
 
     /**
@@ -79,7 +82,7 @@ class ArtworkRepository extends BaseRepository
     /**
      * Search artworks
      */
-    public function search(string $query, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function search(string $query, array $filters = [], int $perPage = 15, string $sortBy = 'newest', string $sortOrder = 'desc'): LengthAwarePaginator
     {
         $queryBuilder = $this->model
             ->published()
@@ -106,10 +109,48 @@ class ArtworkRepository extends BaseRepository
             $queryBuilder->where('location_text', 'LIKE', "%{$filters['location']}%");
         }
 
-        return $queryBuilder
-            ->with(['user.profile', 'category', 'wall'])
-            ->orderByDesc('created_at')
-            ->paginate($perPage);
+        $queryBuilder->with(['user.profile', 'category', 'wall']);
+
+        // Apply sorting
+        $this->applySorting($queryBuilder, $sortBy, $sortOrder);
+
+        return $queryBuilder->paginate($perPage);
+    }
+
+    /**
+     * Apply sorting to query
+     */
+    private function applySorting($query, string $sortBy, string $sortOrder): void
+    {
+        $orderDirection = $sortOrder === 'asc' ? 'asc' : 'desc';
+
+        switch ($sortBy) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'most_liked':
+                $query->orderBy('likes_count', 'desc');
+                break;
+            case 'most_viewed':
+                $query->orderBy('views_count', 'desc');
+                break;
+            case 'most_commented':
+                $query->orderBy('comments_count', 'desc');
+                break;
+            case 'highest_rated':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+        }
     }
 
     /**

@@ -36,7 +36,7 @@ class AIGeneratorService
      * @return string
      * @throws Exception
      */
-    public function generateThemedImage(string $archetype, $subjectImageFile = null, int $retries = 3): string
+    public function generateThemedImage(string $archetype, $subjectImageFile = null, int $retries = 3): array
     {
         try {
             $prompts = $this->getArchetypePrompts();
@@ -70,8 +70,14 @@ class AIGeneratorService
             $prediction = $response->json();
             $predictionId = $prediction['id'];
 
-            // Poll for completion (use default maxRetries of 30)
-            return $this->pollForCompletion($predictionId);
+            Log::info("Prediction created: {$predictionId}");
+
+            // Return prediction ID for frontend to poll
+            return [
+                'prediction_id' => $predictionId,
+                'status' => 'starting',
+                'message' => 'AI generation started successfully'
+            ];
 
         } catch (Exception $e) {
             if ($e->getCode() === 429 && $retries > 0) {
@@ -180,6 +186,67 @@ class AIGeneratorService
      * @return array
      */
     /**
+     * Check prediction status and return progress info
+     *
+     * @param string $predictionId
+     * @return array
+     * @throws Exception
+     */
+    public function checkPredictionStatus(string $predictionId): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Token ' . $this->replicateApiToken,
+            ])->get($this->replicateApiUrl . '/predictions/' . $predictionId);
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to check prediction status: ' . $response->body());
+            }
+
+            $prediction = $response->json();
+            $status = $prediction['status'];
+
+            // Calculate progress based on status
+            $progress = 0;
+            $message = '';
+
+            switch ($status) {
+                case 'starting':
+                    $progress = 10;
+                    $message = 'Initializing AI model...';
+                    break;
+                case 'processing':
+                    $progress = 50;
+                    $message = 'AI is creating your masterpiece...';
+                    break;
+                case 'succeeded':
+                    $progress = 100;
+                    $message = 'Generation complete!';
+                    break;
+                case 'failed':
+                    $progress = 0;
+                    $message = 'Generation failed';
+                    break;
+                default:
+                    $progress = 25;
+                    $message = 'Preparing generation...';
+            }
+
+            return [
+                'status' => $status,
+                'progress' => $progress,
+                'message' => $message,
+                'output' => $status === 'succeeded' ? $prediction['output'] : null,
+                'error' => $status === 'failed' ? ($prediction['error'] ?? 'Unknown error') : null
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Error checking prediction status: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Generate custom image using user-provided prompt
      *
      * @param string $prompt
@@ -188,7 +255,7 @@ class AIGeneratorService
      * @return string
      * @throws Exception
      */
-    public function generateCustomImage(string $prompt, $subjectImageFile = null, int $retries = 3): string
+    public function generateCustomImage(string $prompt, $subjectImageFile = null, int $retries = 3): array
     {
         try {
             $input = [
@@ -221,14 +288,12 @@ class AIGeneratorService
 
             Log::info("Custom prediction created: {$predictionId}");
 
-            // Poll for completion
-            $result = $this->pollForCompletion($predictionId);
-
-            if (!$result) {
-                throw new Exception('Prediction timed out after 3 minutes');
-            }
-
-            return $result;
+            // Return prediction ID for frontend to poll
+            return [
+                'prediction_id' => $predictionId,
+                'status' => 'starting',
+                'message' => 'AI generation started successfully'
+            ];
 
         } catch (Exception $e) {
             Log::error('Custom image generation failed: ' . $e->getMessage());

@@ -35,8 +35,10 @@ class ArtworkApiController extends ApiBaseController
         try {
             $filters = $request->only(['category_id', 'style', 'technique', 'location']);
             $perPage = $request->input('per_page', 15);
+            $sortBy = $request->input('sort_by', 'newest');
+            $sortOrder = $request->input('sort_order', 'desc');
 
-            $artworks = $this->artworkService->getArtworkFeed($filters, $perPage);
+            $artworks = $this->artworkService->getArtworkFeed($filters, $perPage, $sortBy, $sortOrder);
 
             return $this->sendSuccess($artworks, 'Artworks retrieved successfully');
         } catch (\Exception $e) {
@@ -235,8 +237,8 @@ class ArtworkApiController extends ApiBaseController
             $comment = $this->artworkService->addComment(
                 $id,
                 $user,
-                $request->content,
-                $request->parent_id
+                $request->input('content'),
+                $request->input('parent_id')
             );
 
             if (!$comment) {

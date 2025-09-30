@@ -182,13 +182,13 @@ class ArtworkService
     /**
      * Get artwork feed
      */
-    public function getArtworkFeed(array $filters = [], int $perPage = 15)
+    public function getArtworkFeed(array $filters = [], int $perPage = 15, string $sortBy = 'newest', string $sortOrder = 'desc')
     {
         if (!empty($filters)) {
-            return $this->artworkRepository->search('', $filters, $perPage);
+            return $this->artworkRepository->search('', $filters, $perPage, $sortBy, $sortOrder);
         }
 
-        return $this->artworkRepository->getPublished($perPage);
+        return $this->artworkRepository->getPublished($perPage, $sortBy, $sortOrder);
     }
 
     /**

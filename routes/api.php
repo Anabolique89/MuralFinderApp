@@ -149,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/forge-saga', [AIGeneratorController::class, 'forgeSaga']);
         Route::post('/generate-custom', [AIGeneratorController::class, 'generateCustom']);
         Route::post('/forge-custom-saga', [AIGeneratorController::class, 'forgeCustomSaga']);
+        Route::post('/check-status', [AIGeneratorController::class, 'checkPredictionStatus']);
         Route::post('/upload-as-artwork', [AIGeneratorController::class, 'uploadAsArtwork']);
     });
 

@@ -42,10 +42,12 @@ class AIGeneratorController extends ApiBaseController
             $result = $this->aiGeneratorService->generateThemedImage($archetype);
 
             return $this->sendSuccess([
-                'output' => $result,
+                'prediction_id' => $result['prediction_id'],
+                'status' => $result['status'],
+                'message' => $result['message'],
                 'service' => 'Minimax Image-01',
                 'archetype' => $archetype
-            ], 'Image generated successfully');
+            ], 'Image generation started successfully');
 
         } catch (\Exception $e) {
             Log::error('AI Generator Error: ' . $e->getMessage(), [
@@ -86,13 +88,15 @@ class AIGeneratorController extends ApiBaseController
             $result = $this->aiGeneratorService->generateThemedImage($archetype, $imageFile);
 
             return $this->sendSuccess([
-                'output' => $result,
+                'prediction_id' => $result['prediction_id'],
+                'status' => $result['status'],
+                'message' => $result['message'],
                 'service' => 'Minimax Image-01',
                 'archetype' => $archetype,
                 'note' => $imageFile
                     ? 'Generated themed image using your photo as character reference!'
                     : 'Generated themed image based on your archetype selection. Upload a photo for personalized results!'
-            ], 'Image generated successfully');
+            ], 'Image generation started successfully');
 
         } catch (\Exception $e) {
             Log::error('AI Generator Error: ' . $e->getMessage(), [
@@ -132,10 +136,12 @@ class AIGeneratorController extends ApiBaseController
             $result = $this->aiGeneratorService->generateCustomImage($prompt);
 
             return $this->sendSuccess([
-                'output' => $result,
+                'prediction_id' => $result['prediction_id'],
+                'status' => $result['status'],
+                'message' => $result['message'],
                 'service' => 'Minimax Image-01',
                 'prompt' => $prompt
-            ], 'Custom image generated successfully');
+            ], 'Custom image generation started successfully');
 
         } catch (\Exception $e) {
             Log::error('AI Custom Generator Error: ' . $e->getMessage(), [
@@ -176,13 +182,15 @@ class AIGeneratorController extends ApiBaseController
             $result = $this->aiGeneratorService->generateCustomImage($prompt, $imageFile);
 
             return $this->sendSuccess([
-                'output' => $result,
+                'prediction_id' => $result['prediction_id'],
+                'status' => $result['status'],
+                'message' => $result['message'],
                 'service' => 'Minimax Image-01',
                 'prompt' => $prompt,
                 'note' => $imageFile
                     ? 'Generated custom image using your photo as character reference!'
                     : 'Generated custom image based on your prompt. Upload a photo for personalized results!'
-            ], 'Custom image generated successfully');
+            ], 'Custom image generation started successfully');
 
         } catch (\Exception $e) {
             Log::error('AI Custom Generator Error: ' . $e->getMessage(), [
@@ -213,6 +221,41 @@ class AIGeneratorController extends ApiBaseController
     }
 
     /**
+     * Check prediction status and progress
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkPredictionStatus(Request $request): JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'prediction_id' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation failed: ' . implode(', ', $validator->errors()->all()), 422);
+            }
+
+            $predictionId = $request->input('prediction_id');
+            $result = $this->aiGeneratorService->checkPredictionStatus($predictionId);
+
+            return $this->sendSuccess($result, 'Prediction status retrieved successfully');
+
+        } catch (\Exception $e) {
+            Log::error('AI Prediction Status Error: ' . $e->getMessage(), [
+                'prediction_id' => $request->input('prediction_id'),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->sendError(
+                'Failed to check prediction status: ' . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    /**
      * Upload generated image as artwork
      *
      * @param Request $request
@@ -223,7 +266,7 @@ class AIGeneratorController extends ApiBaseController
         try {
             $validator = Validator::make($request->all(), [
                 'image_url' => 'required|url',
-                'archetype' => 'nullable|string|in:viking,royal,norse',
+                'archetype' => 'nullable|string|in:viking,royal,norse,custom',
                 'prompt' => 'nullable|string|max:500',
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string|max:1000'
