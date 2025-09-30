@@ -147,6 +147,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('ai-generator')->group(function () {
         Route::post('/generate-archetype', [AIGeneratorController::class, 'generateArchetype']);
         Route::post('/forge-saga', [AIGeneratorController::class, 'forgeSaga']);
+        Route::post('/generate-custom', [AIGeneratorController::class, 'generateCustom']);
+        Route::post('/forge-custom-saga', [AIGeneratorController::class, 'forgeCustomSaga']);
         Route::post('/upload-as-artwork', [AIGeneratorController::class, 'uploadAsArtwork']);
     });
 

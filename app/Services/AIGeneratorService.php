@@ -179,6 +179,63 @@ class AIGeneratorService
      *
      * @return array
      */
+    /**
+     * Generate custom image using user-provided prompt
+     *
+     * @param string $prompt
+     * @param \Illuminate\Http\UploadedFile|null $subjectImageFile
+     * @param int $retries
+     * @return string
+     * @throws Exception
+     */
+    public function generateCustomImage(string $prompt, $subjectImageFile = null, int $retries = 3): string
+    {
+        try {
+            $input = [
+                'prompt' => $prompt,
+                'aspect_ratio' => '1:1',
+                'number_of_images' => 1,
+                'prompt_optimizer' => true,
+            ];
+
+            // If user uploaded an image, use it as subject reference
+            if ($subjectImageFile) {
+                $processedImageData = $this->processImageForReplicate($subjectImageFile);
+                $input['subject_reference'] = $processedImageData;
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Token ' . $this->replicateApiToken,
+                'Content-Type' => 'application/json',
+            ])->post($this->replicateApiUrl . '/predictions', [
+                'version' => 'minimax/image-01',
+                'input' => $input
+            ]);
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to create prediction: ' . $response->body());
+            }
+
+            $prediction = $response->json();
+            $predictionId = $prediction['id'];
+
+            Log::info("Custom prediction created: {$predictionId}");
+
+            // Poll for completion
+            $result = $this->pollForCompletion($predictionId);
+
+            if (!$result) {
+                throw new Exception('Prediction timed out after 3 minutes');
+            }
+
+            return $result;
+
+        } catch (Exception $e) {
+            Log::error('Custom image generation failed: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
     protected function getArchetypePrompts(): array
     {
         return [
@@ -195,10 +252,11 @@ class AIGeneratorService
      * @param string $archetype
      * @param string $title
      * @param string $description
+     * @param string|null $customPrompt
      * @return array
      * @throws Exception
      */
-    public function uploadGeneratedImageAsArtwork(string $imageUrl, string $archetype, string $title, string $description): array
+    public function uploadGeneratedImageAsArtwork(string $imageUrl, string $archetype, string $title, string $description, ?string $customPrompt = null): array
     {
         try {
             // Download the image
@@ -246,7 +304,8 @@ class AIGeneratorService
                 'comment_count' => 0,
                 'ai_generated' => true,
                 'ai_archetype' => $archetype,
-                'ai_service' => 'Minimax Image-01'
+                'ai_service' => 'Minimax Image-01',
+                'ai_prompt' => $customPrompt
             ]);
 
             return [
