@@ -69,9 +69,9 @@ class AuthenticationService
     {
         // Determine if identifier is email or username
         $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        
+
         // Find user
-        $user = $field === 'email' 
+        $user = $field === 'email'
             ? $this->userRepository->findByEmail($identifier)
             : $this->userRepository->findByUsername($identifier);
 
@@ -272,8 +272,8 @@ class AuthenticationService
      */
     protected function createTokens(User $user, bool $remember = false): array
     {
-        // Create access token (expires in 1 hour)
-        $accessToken = $user->createToken('access_token', ['*'], now()->addHour());
+        // Create access token (expires in 24 hours)
+        $accessToken = $user->createToken('access_token', ['*'], now()->addDay());
 
         // Create refresh token (expires in 30 days or 1 year if remember me)
         $refreshTokenExpiry = $remember ? now()->addYear() : now()->addDays(30);
@@ -283,7 +283,7 @@ class AuthenticationService
             'access_token' => $accessToken->plainTextToken,
             'refresh_token' => $refreshToken->plainTextToken,
             'token_type' => 'Bearer',
-            'expires_in' => 3600, // 1 hour in seconds
+            'expires_in' => 86400, // 24 hours in seconds
         ];
     }
 
@@ -332,7 +332,7 @@ class AuthenticationService
     public function getUserFromToken(string $token): ?User
     {
         $accessToken = PersonalAccessToken::findToken($token);
-        
+
         if (!$accessToken || $accessToken->expires_at < now()) {
             return null;
         }
@@ -346,7 +346,7 @@ class AuthenticationService
     public function revokeOtherTokens(User $user, string $currentToken): array
     {
         $current = PersonalAccessToken::findToken($currentToken);
-        
+
         $user->tokens()
             ->where('id', '!=', $current?->id)
             ->delete();

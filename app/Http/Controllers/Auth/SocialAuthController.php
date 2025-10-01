@@ -40,7 +40,7 @@ class SocialAuthController extends ApiBaseController
             $existingUser = User::whereEmail($socialUser->getEmail())->first();
 
             if ($existingUser) {
-                $token = $existingUser->createToken('authToken')->plainTextToken;
+                $token = $existingUser->createToken('authToken', ['*'], now()->addDay())->plainTextToken;
 
                 $existingUser->load('profile');
 
@@ -81,7 +81,7 @@ class SocialAuthController extends ApiBaseController
                     ]);
                 }
 
-                $token = $user->createToken('authToken')->plainTextToken;
+                $token = $user->createToken('authToken', ['*'], now()->addDay())->plainTextToken;
 
                 $user->load('profile');
 
