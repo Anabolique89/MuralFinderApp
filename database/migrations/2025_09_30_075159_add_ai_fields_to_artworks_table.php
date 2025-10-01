@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('artworks', function (Blueprint $table) {
-            $table->boolean('ai_generated')->default(false)->after('comment_count');
+            $table->boolean('ai_generated')->default(false)->after('comments_count');
             $table->string('ai_archetype')->nullable()->after('ai_generated');
             $table->string('ai_service')->nullable()->after('ai_archetype');
             $table->text('ai_prompt')->nullable()->after('ai_service');
