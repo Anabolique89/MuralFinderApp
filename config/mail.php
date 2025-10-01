@@ -114,6 +114,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Email
+    |--------------------------------------------------------------------------
+    |
+    | This email address will receive contact form submissions and other
+    | administrative notifications. If not set, the system will try to find
+    | a user with admin role, or fall back to the mail from address.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------
     |
