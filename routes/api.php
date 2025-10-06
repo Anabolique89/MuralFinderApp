@@ -275,7 +275,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Post management
         Route::put('/posts/{postId}/status', [AdminController::class, 'updatePostStatus']);
         Route::delete('/posts/{postId}', [AdminController::class, 'deletePost']);
-        
+
         // Admin posts endpoint (get all posts including drafts)
         Route::get('/posts', [PostApiController::class, 'adminIndex']);
 

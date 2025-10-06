@@ -173,6 +173,18 @@ class PostService
     }
 
     /**
+     * Get posts feed (public - only published posts)
+     */
+    public function getPostsFeed(array $filters = [], int $perPage = 15)
+    {
+        if (!empty($filters)) {
+            return $this->postRepository->search('', $filters, $perPage);
+        }
+
+        return $this->postRepository->getPublished($perPage);
+    }
+
+    /**
      * Get all posts for admin (including drafts)
      */
     public function getAllPostsForAdmin(array $filters = [], int $perPage = 15)

@@ -28,6 +28,24 @@ class PostApiController extends ApiBaseController
     }
 
     /**
+     * Get posts feed (public - only published posts)
+     */
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $filters = $request->only(['category_id', 'type', 'featured']);
+            $perPage = $request->input('per_page', 15);
+
+            $posts = $this->postService->getPostsFeed($filters, $perPage);
+
+            return $this->sendSuccess($posts, 'Posts retrieved successfully');
+        } catch (\Exception $e) {
+            logger()->error('Posts index error: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve posts', JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Get all posts for admin (including drafts)
      */
     public function adminIndex(Request $request): JsonResponse
