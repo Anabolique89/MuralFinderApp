@@ -62,14 +62,18 @@ class PostService
                 'images' => $uploadedImages,
                 'tags' => $postData['tags'] ?? [],
                 'is_published' => $postData['is_published'] ?? true,
-                'published_at' => ($postData['is_published'] ?? true) ? now() : null,
                 'meta_title' => $postData['meta_title'] ?? null,
                 'meta_description' => $postData['meta_description'] ?? null,
                 'allow_comments' => $postData['allow_comments'] ?? true,
                 'is_featured' => $postData['is_featured'] ?? false,
-                'status' => Post::STATUS_PUBLISHED,
+                'status' => ($postData['is_published'] ?? true) ? Post::STATUS_PUBLISHED : Post::STATUS_DRAFT,
                 'slug' => $slug,
             ]);
+
+            // If the post should be published, use the model's publish method to set published_at
+            if ($postData['is_published'] ?? true) {
+                $post->publish();
+            }
 
             // Update user's post count
             $user->profile?->incrementPostsCount();
@@ -93,7 +97,24 @@ class PostService
             $postData['slug'] = $this->generateUniqueSlug($postData['title'], $post->id);
         }
 
+        // Handle is_published changes
+        if (isset($postData['is_published'])) {
+            if ($postData['is_published'] && $post->status !== Post::STATUS_PUBLISHED) {
+                // Publishing the post
+                $postData['status'] = Post::STATUS_PUBLISHED;
+            } elseif (!$postData['is_published'] && $post->status === Post::STATUS_PUBLISHED) {
+                // Unpublishing the post
+                $postData['status'] = Post::STATUS_DRAFT;
+                $postData['published_at'] = null;
+            }
+        }
+
         $this->postRepository->update($post, $postData);
+
+        // If the post is being published, use the model's publish method
+        if (isset($postData['is_published']) && $postData['is_published'] && $post->fresh()->status === Post::STATUS_PUBLISHED) {
+            $post->fresh()->publish();
+        }
 
         return $post->fresh(['user.profile', 'category']);
     }

@@ -118,13 +118,20 @@ class AdminController extends ApiBaseController
         ]);
 
         $post = Post::findOrFail($postId);
+
+        // Update basic fields
         $post->update([
             'status' => $request->status,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now()
         ]);
 
-        return $this->sendSuccess($post, 'Post status updated successfully');
+        // If publishing, use the model's publish method to set published_at
+        if ($request->status === 'published') {
+            $post->publish();
+        }
+
+        return $this->sendSuccess($post->fresh(), 'Post status updated successfully');
     }
 
     public function deletePost($postId)
@@ -197,7 +204,7 @@ class AdminController extends ApiBaseController
 
         // For now, just return success since we don't have a settings table
         // In a real app, you would save these to a database or config files
-        
+
 
         return $this->sendSuccess($request->all(), 'Settings updated successfully');
     }
