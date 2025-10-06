@@ -62,7 +62,7 @@ class PostService
                 'images' => $uploadedImages,
                 'tags' => $postData['tags'] ?? [],
                 'is_published' => $postData['is_published'] ?? true,
-                'published_at' => $postData['publish_at'] ?? now(),
+                'published_at' => ($postData['is_published'] ?? true) ? now() : null,
                 'meta_title' => $postData['meta_title'] ?? null,
                 'meta_description' => $postData['meta_description'] ?? null,
                 'allow_comments' => $postData['allow_comments'] ?? true,
