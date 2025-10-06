@@ -16,14 +16,35 @@ class PostRepository extends BaseRepository
     }
 
     /**
-     * Get published posts
+     * Get all posts for admin (including drafts)
      */
-    public function getPublished(int $perPage = 15): LengthAwarePaginator
+    public function getAllForAdmin(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model
-            ->published()
-            ->with(['user.profile', 'category'])
-            ->orderByDesc('published_at')
+        $queryBuilder = $this->model->with(['user.profile', 'category']);
+
+        // Apply filters
+        if (isset($filters['status'])) {
+            $queryBuilder->where('status', $filters['status']);
+        }
+
+        if (isset($filters['category_id'])) {
+            $queryBuilder->where('category_id', $filters['category_id']);
+        }
+
+        if (isset($filters['type'])) {
+            $queryBuilder->where('type', $filters['type']);
+        }
+
+        if (isset($filters['user_id'])) {
+            $queryBuilder->where('user_id', $filters['user_id']);
+        }
+
+        if (isset($filters['featured'])) {
+            $queryBuilder->where('is_featured', $filters['featured']);
+        }
+
+        return $queryBuilder
+            ->orderByDesc('created_at')
             ->paginate($perPage);
     }
 

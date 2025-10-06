@@ -173,15 +173,11 @@ class PostService
     }
 
     /**
-     * Get posts feed
+     * Get all posts for admin (including drafts)
      */
-    public function getPostsFeed(array $filters = [], int $perPage = 15)
+    public function getAllPostsForAdmin(array $filters = [], int $perPage = 15)
     {
-        if (!empty($filters)) {
-            return $this->postRepository->search('', $filters, $perPage);
-        }
-
-        return $this->postRepository->getPublished($perPage);
+        return $this->postRepository->getAllForAdmin($filters, $perPage);
     }
 
     /**
@@ -268,7 +264,17 @@ class PostService
     {
         $post = $this->postRepository->findById($id);
 
-        if ($post && $viewer) {
+        // If no post found, return null
+        if (!$post) {
+            return null;
+        }
+
+        // Check if viewer can access this post
+        if (!$this->canViewPost($post, $viewer)) {
+            return null;
+        }
+
+        if ($viewer) {
             $this->recordView($post, $viewer, [
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -276,6 +282,46 @@ class PostService
         }
 
         return $post;
+    }
+
+    /**
+     * Check if user can view a post
+     */
+    private function canViewPost(Post $post, ?User $viewer = null): bool
+    {
+        // Published posts can be viewed by anyone
+        if ($post->isPublished()) {
+            return true;
+        }
+
+        // Draft posts can only be viewed by:
+        // 1. The post author
+        // 2. Admin users
+        if ($post->status === Post::STATUS_DRAFT) {
+            if (!$viewer) {
+                return false; // No user logged in
+            }
+
+            // Post author can always view their drafts
+            if ($post->user_id === $viewer->id) {
+                return true;
+            }
+
+            // Admin users can view all drafts
+            if ($viewer->isAdmin()) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // For other statuses (under_review, rejected, archived)
+        // Only admin and post author can view
+        if (!$viewer) {
+            return false;
+        }
+
+        return $post->user_id === $viewer->id || $viewer->isAdmin();
     }
 
     /**
@@ -364,7 +410,7 @@ class PostService
 
         return app(CommentService::class)->createComment($user, $post, $content, $parentComment);
     }
-    
+
 
 
 }

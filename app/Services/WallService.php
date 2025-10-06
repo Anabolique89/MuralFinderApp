@@ -190,7 +190,7 @@ class WallService
         }
 
         $like->delete();
-        
+
         // Prevent likes_count from going below 0
         if ($wall->likes_count > 0) {
             $wall->decrement('likes_count');
