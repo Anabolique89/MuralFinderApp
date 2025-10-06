@@ -142,7 +142,7 @@ class PostRepository extends BaseRepository
 
         return $queryBuilder
             ->with(['user.profile', 'category'])
-            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
             ->paginate($perPage);
     }
 
