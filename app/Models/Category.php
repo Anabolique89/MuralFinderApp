@@ -22,6 +22,7 @@ class Category extends Model
         'is_active',
         'sort_order',
         'artworks_count',
+        'posts_count',
     ];
 
     /**
@@ -31,6 +32,7 @@ class Category extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
         'artworks_count' => 'integer',
+        'posts_count' => 'integer',
     ];
 
     /**
@@ -95,6 +97,22 @@ class Category extends Model
     public function decrementArtworksCount(): void
     {
         $this->decrement('artworks_count');
+    }
+
+    /**
+     * Increment posts count
+     */
+    public function incrementPostsCount(): void
+    {
+        $this->increment('posts_count');
+    }
+
+    /**
+     * Decrement posts count
+     */
+    public function decrementPostsCount(): void
+    {
+        $this->decrement('posts_count');
     }
 
     /**
