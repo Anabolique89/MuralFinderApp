@@ -58,7 +58,7 @@ class PostService
                 'excerpt' => $postData['excerpt'] ?? null,
                 'category_id' => $postData['category_id'] ?? null,
                 'type' => $postData['type'],
-                'featured_image_path' => $featuredImagePath,
+                'featured_image' => $featuredImagePath,
                 'images' => $uploadedImages,
                 'tags' => $postData['tags'] ?? [],
                 'is_published' => $postData['is_published'] ?? true,
