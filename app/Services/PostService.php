@@ -181,7 +181,8 @@ class PostService
             return $this->postRepository->search('', $filters, $perPage);
         }
 
-        return $this->postRepository->getPublished($perPage);
+        // If no filters, get published posts using search with empty query
+        return $this->postRepository->search('', [], $perPage);
     }
 
     /**
