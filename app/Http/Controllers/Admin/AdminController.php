@@ -147,29 +147,22 @@ class AdminController extends ApiBaseController
     // Settings Management
     public function getSettings()
     {
-        // For now, return default settings since we don't have a settings table
+        // Get settings from database using the Setting model
         $settings = [
-            'site_name' => config('app.name', 'MuralFinder'),
-            'site_description' => 'Discover and share street art around the world',
-            'site_url' => config('app.url'),
-            'admin_email' => config('mail.from.address'),
-            'user_registration' => true,
-            'email_verification' => true,
-            'comment_moderation' => false,
-            'artwork_approval' => true,
-            'wall_approval' => false,
-            'email_notifications' => true,
-            'push_notifications' => false,
-            'admin_notifications' => true,
-            'user_notifications' => true,
-            'max_file_size' => 5,
-            'allowed_file_types' => 'jpg,jpeg,png,gif,webp',
-            'posts_per_page' => 12,
-            'comments_per_page' => 20,
-            'session_timeout' => 60,
-            'password_min_length' => 8,
-            'require_2fa' => false,
-            'login_attempts' => 5,
+            'site_name' => \App\Models\Setting::get('site_name', config('app.name', 'MuralFinder')),
+            'site_description' => \App\Models\Setting::get('site_description', 'Discover and share street art around the world'),
+            'site_url' => \App\Models\Setting::get('site_url', config('app.url')),
+            'admin_email' => \App\Models\Setting::get('admin_email', config('mail.from.address')),
+            'max_upload_size' => \App\Models\Setting::get('max_upload_size', 10),
+            'allowed_file_types' => \App\Models\Setting::get('allowed_file_types', 'jpg,jpeg,png,gif,mp4,mov'),
+            'auto_approve_artworks' => \App\Models\Setting::get('auto_approve_artworks', false),
+            'auto_approve_posts' => \App\Models\Setting::get('auto_approve_posts', false),
+            'require_email_verification' => \App\Models\Setting::get('require_email_verification', true),
+            'enable_notifications' => \App\Models\Setting::get('enable_notifications', true),
+            'maintenance_mode' => \App\Models\Setting::get('maintenance_mode', false),
+            'max_artworks_per_user' => \App\Models\Setting::get('max_artworks_per_user', 50),
+            'max_posts_per_user' => \App\Models\Setting::get('max_posts_per_user', 20),
+            'enable_comments' => \App\Models\Setting::get('enable_comments', true),
         ];
 
         return $this->sendSuccess($settings, 'Settings retrieved successfully');
@@ -183,29 +176,46 @@ class AdminController extends ApiBaseController
             'site_description' => 'nullable|string|max:500',
             'site_url' => 'nullable|url',
             'admin_email' => 'nullable|email',
-            'user_registration' => 'boolean',
-            'email_verification' => 'boolean',
-            'comment_moderation' => 'boolean',
-            'artwork_approval' => 'boolean',
-            'wall_approval' => 'boolean',
-            'email_notifications' => 'boolean',
-            'push_notifications' => 'boolean',
-            'admin_notifications' => 'boolean',
-            'user_notifications' => 'boolean',
-            'max_file_size' => 'integer|min:1|max:100',
-            'allowed_file_types' => 'string',
-            'posts_per_page' => 'integer|min:1|max:100',
-            'comments_per_page' => 'integer|min:1|max:100',
-            'session_timeout' => 'integer|min:5|max:1440',
-            'password_min_length' => 'integer|min:6|max:50',
-            'require_2fa' => 'boolean',
-            'login_attempts' => 'integer|min:1|max:20',
+            'max_upload_size' => 'nullable|integer|min:1|max:100',
+            'allowed_file_types' => 'nullable|string',
+            'auto_approve_artworks' => 'nullable|boolean',
+            'auto_approve_posts' => 'nullable|boolean',
+            'require_email_verification' => 'nullable|boolean',
+            'enable_notifications' => 'nullable|boolean',
+            'maintenance_mode' => 'nullable|boolean',
+            'max_artworks_per_user' => 'nullable|integer|min:1|max:1000',
+            'max_posts_per_user' => 'nullable|integer|min:1|max:1000',
+            'enable_comments' => 'nullable|boolean',
         ]);
 
-        // For now, just return success since we don't have a settings table
-        // In a real app, you would save these to a database or config files
+        try {
+            // Save settings using the Setting model
+            $settingsToSave = $request->only([
+                'site_name',
+                'site_description',
+                'site_url',
+                'admin_email',
+                'max_upload_size',
+                'allowed_file_types',
+                'auto_approve_artworks',
+                'auto_approve_posts',
+                'require_email_verification',
+                'enable_notifications',
+                'maintenance_mode',
+                'max_artworks_per_user',
+                'max_posts_per_user',
+                'enable_comments'
+            ]);
 
+            foreach ($settingsToSave as $key => $value) {
+                if ($value !== null) {
+                    \App\Models\Setting::set($key, $value, is_bool($value) ? 'boolean' : (is_int($value) ? 'integer' : 'string'));
+                }
+            }
 
-        return $this->sendSuccess($request->all(), 'Settings updated successfully');
+            return $this->sendSuccess(null, 'Settings updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to update settings: ' . $e->getMessage(), 500);
+        }
     }
 }

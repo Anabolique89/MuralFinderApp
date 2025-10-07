@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Artwork;
 use App\Models\Category;
+use App\Models\Setting;
+use App\Models\UserProfile;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Exception;
@@ -28,17 +30,87 @@ class AIGeneratorService
     }
 
     /**
+     * Check if user has reached generation limit based on subscription tier
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function checkGenerationLimit(int $userId): array
+    {
+        $profile = UserProfile::where('user_id', $userId)->first();
+
+        if (!$profile) {
+            return [
+                'generated_count' => 0,
+                'remaining_count' => 0,
+                'max_limit' => 0,
+                'limit_reached' => true,
+                'subscription_tier' => 'free'
+            ];
+        }
+
+        $subscriptionTier = $profile->subscription_tier ?? 'free';
+        $maxLimit = Setting::get("ai_generation_limit_{$subscriptionTier}", 10);
+        $generatedCount = $profile->ai_generations_count ?? 0;
+        $remaining = max(0, $maxLimit - $generatedCount);
+
+        return [
+            'generated_count' => $generatedCount,
+            'remaining_count' => $remaining,
+            'max_limit' => $maxLimit,
+            'limit_reached' => $remaining <= 0,
+            'subscription_tier' => $subscriptionTier
+        ];
+    }
+
+    /**
+     * Validate user can generate more images
+     *
+     * @param int $userId
+     * @throws Exception
+     */
+    protected function validateGenerationLimit(int $userId): void
+    {
+        $limitInfo = $this->checkGenerationLimit($userId);
+
+        if ($limitInfo['limit_reached']) {
+            $subscriptionTier = $limitInfo['subscription_tier'];
+            $maxLimit = $limitInfo['max_limit'];
+
+            if ($subscriptionTier === 'free') {
+                throw new Exception("You have reached the maximum limit of {$maxLimit} AI generated images. Upgrade to a subscription plan to generate more!");
+            } else {
+                throw new Exception("You have reached the maximum limit of {$maxLimit} AI generated images for your {$subscriptionTier} subscription. Contact support to upgrade your plan.");
+            }
+        }
+    }
+
+    /**
+     * Increment user's AI generation count (lifetime tracking)
+     *
+     * @param int $userId
+     * @return void
+     */
+    protected function incrementGenerationCount(int $userId): void
+    {
+        UserProfile::where('user_id', $userId)->increment('ai_generations_count');
+    }
+
+    /**
      * Generate themed image using Minimax image-01
      *
      * @param string $archetype
      * @param \Illuminate\Http\UploadedFile|null $subjectImageFile
      * @param int $retries
-     * @return string
+     * @return array
      * @throws Exception
      */
     public function generateThemedImage(string $archetype, $subjectImageFile = null, int $retries = 3): array
     {
         try {
+            // Validate user hasn't reached generation limit
+            $this->validateGenerationLimit(auth()->id());
+
             $prompts = $this->getArchetypePrompts();
             $prompt = $prompts[$archetype] ?? $prompts['viking'];
 
@@ -252,12 +324,15 @@ class AIGeneratorService
      * @param string $prompt
      * @param \Illuminate\Http\UploadedFile|null $subjectImageFile
      * @param int $retries
-     * @return string
+     * @return array
      * @throws Exception
      */
     public function generateCustomImage(string $prompt, $subjectImageFile = null, int $retries = 3): array
     {
         try {
+            // Validate user hasn't reached generation limit
+            $this->validateGenerationLimit(auth()->id());
+
             $input = [
                 'prompt' => $prompt,
                 'aspect_ratio' => '1:1',
@@ -372,6 +447,9 @@ class AIGeneratorService
                 'ai_service' => 'Minimax Image-01',
                 'ai_prompt' => $customPrompt
             ]);
+
+            // Increment user's lifetime AI generation count
+            $this->incrementGenerationCount(auth()->id());
 
             return [
                 'artwork' => $artwork->load('category', 'user'),
