@@ -93,17 +93,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // api.muralfinder.net
 // apiv2.muralfinder.net
-    // Artworks
+    // Artworks (Authenticated)
     Route::prefix('artworks')->group(function () {
-        Route::post('/', [ArtworkApiController::class, 'store']); // CREATE   // POST api.muralfinder.net/artworks/
+        Route::post('/', [ArtworkApiController::class, 'store']); // CREATE   // POST api.muralfinder.net/api/artworks/
         Route::put('/{id}', [ArtworkApiController::class, 'update']); // EDIT / UPDATE
         Route::delete('/{id}', [ArtworkApiController::class, 'destroy']); // DELETE
         Route::post('/{id}/like', [ArtworkApiController::class, 'toggleLike']);
-        Route::get('/{id}/comments', [ArtworkApiController::class, 'comments']);
         Route::post('/{id}/comments', [ArtworkApiController::class, 'addComment']);
     });
 
-    // Walls
+    // Walls (Authenticated)
     Route::prefix('walls')->group(function () {
         Route::post('/', [WallApiController::class, 'store']);
         Route::put('/{id}', [WallApiController::class, 'update']);
@@ -113,13 +112,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/checkin', [WallApiController::class, 'checkIn']);
     });
 
-    // Posts
+    // Posts (Authenticated)
     Route::prefix('posts')->group(function () {
         Route::post('/', [PostApiController::class, 'store']);
         Route::put('/{id}', [PostApiController::class, 'update']);
         Route::delete('/{id}', [PostApiController::class, 'destroy']);
         Route::post('/{id}/like', [PostApiController::class, 'toggleLike']);
-        Route::get('/{id}/comments', [PostApiController::class, 'comments']);
         Route::post('/{id}/comments', [PostApiController::class, 'addComment']);
     });
 
@@ -167,6 +165,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/nearby', [ArtworkApiController::class, 'nearby']);
         Route::get('/search', [ArtworkApiController::class, 'search']);
         Route::get('/{id}', [ArtworkApiController::class, 'show']);
+        Route::get('/{id}/comments', [ArtworkApiController::class, 'comments']);
     });
 
     // Walls (Public)
@@ -185,6 +184,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/trending', [PostApiController::class, 'trending']);
         Route::get('/search', [PostApiController::class, 'search']);
         Route::get('/{id}', [PostApiController::class, 'show']);
+        Route::get('/{id}/comments', [PostApiController::class, 'comments']);
     });
 
     // Users (Public)

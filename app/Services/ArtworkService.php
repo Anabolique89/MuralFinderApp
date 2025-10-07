@@ -170,13 +170,9 @@ class ArtworkService
     {
         ArtworkView::recordView($artwork, $user, $context);
 
-        // Update view count if it's a unique view
-        if (!$user || !ArtworkView::where('artwork_id', $artwork->id)
-            ->where('user_id', $user->id)
-            ->where('is_unique_view', true)
-            ->exists()) {
-            $artwork->increment('views_count');
-        }
+        // Always increment view count for simplicity
+        // In production, you might want to deduplicate by IP or session
+        $artwork->increment('views_count');
     }
 
     /**
@@ -282,7 +278,8 @@ class ArtworkService
     {
         $artwork = $this->artworkRepository->findById($id);
 
-        if ($artwork && $viewer) {
+        if ($artwork) {
+            // Record view for both authenticated and unauthenticated users
             $this->recordView($artwork, $viewer, [
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),

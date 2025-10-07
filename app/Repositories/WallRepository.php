@@ -122,7 +122,7 @@ class WallRepository extends BaseRepository
     public function getByLocation(string $city, string $country = null): Collection
     {
         $query = $this->model->verified()->where('city', $city);
-        
+
         if ($country) {
             $query->where('country', $country);
         }
