@@ -15,6 +15,17 @@ class WallRepository extends BaseRepository
     }
 
     /**
+     * Get all walls (verified and unverified)
+     */
+    public function getAll(int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->model
+            ->with(['addedBy.profile', 'verifiedBy'])
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+    }
+
+    /**
      * Get verified walls
      */
     public function getVerified(int $perPage = 15): LengthAwarePaginator

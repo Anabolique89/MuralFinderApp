@@ -28,7 +28,7 @@ class WallApiController extends ApiBaseController
     {
         try {
             $perPage = $request->input('per_page', 15);
-            $walls = $this->wallService->getVerifiedWalls($perPage);
+            $walls = $this->wallService->getAllWalls($perPage);
 
             return $this->sendSuccess($walls, 'Walls retrieved successfully');
         } catch (\Exception $e) {

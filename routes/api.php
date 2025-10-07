@@ -215,6 +215,16 @@ Route::prefix('v1')->group(function () {
     Route::prefix('ai-generator')->group(function () {
         Route::get('/archetypes', [AIGeneratorController::class, 'getArchetypes']);
     });
+
+    // Admin endpoints (also available under v1 for frontend compatibility)
+    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+        Route::put('/walls/{wallId}/status', [AdminController::class, 'updateWallStatus']);
+        Route::delete('/walls/{wallId}', [AdminController::class, 'deleteWall']);
+        Route::put('/artworks/{artworkId}/status', [AdminController::class, 'updateArtworkStatus']);
+        Route::delete('/artworks/{artworkId}', [AdminController::class, 'deleteArtwork']);
+        Route::put('/posts/{postId}/status', [AdminController::class, 'updatePostStatus']);
+        Route::delete('/posts/{postId}', [AdminController::class, 'deletePost']);
+    });
 });
 
 // Legacy routes (for backward compatibility) - DEPRECATED

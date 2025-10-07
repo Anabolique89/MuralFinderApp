@@ -216,6 +216,14 @@ class WallService
     }
 
     /**
+     * Get all walls (verified and unverified)
+     */
+    public function getAllWalls(int $perPage = 15)
+    {
+        return $this->wallRepository->getAll($perPage);
+    }
+
+    /**
      * Get verified walls
      */
     public function getVerifiedWalls(int $perPage = 15)
