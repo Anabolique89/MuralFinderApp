@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\DeviceTokenController;
 use App\Http\Controllers\Api\AIGeneratorController;
+use App\Http\Controllers\Admin\SettingsController;
 
 // Non-API Controllers
 use App\Http\Controllers\ContactController;
@@ -143,6 +144,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // AI Generator
     Route::prefix('ai-generator')->group(function () {
+        Route::get('/generation-limit', [AIGeneratorController::class, 'getGenerationLimit']);
         Route::post('/generate-archetype', [AIGeneratorController::class, 'generateArchetype']);
         Route::post('/forge-saga', [AIGeneratorController::class, 'forgeSaga']);
         Route::post('/generate-custom', [AIGeneratorController::class, 'generateCustom']);
@@ -292,6 +294,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // Settings management
         Route::get('/settings', [AdminController::class, 'getSettings']);
         Route::put('/settings', [AdminController::class, 'updateSettings']);
+
+        // AI Generation Limits
+        Route::get('/ai-generation-limits', [SettingsController::class, 'getAIGenerationLimits']);
+        Route::put('/ai-generation-limits', [SettingsController::class, 'updateAIGenerationLimits']);
     });
 });
 

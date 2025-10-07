@@ -221,6 +221,29 @@ class AIGeneratorController extends ApiBaseController
     }
 
     /**
+     * Get user's generation limit info
+     *
+     * @return JsonResponse
+     */
+    public function getGenerationLimit(): JsonResponse
+    {
+        try {
+            $userId = auth()->id();
+            $limitInfo = $this->aiGeneratorService->checkGenerationLimit($userId);
+
+            return $this->sendSuccess($limitInfo, 'Generation limit info retrieved successfully');
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching generation limit: ' . $e->getMessage());
+
+            return $this->sendError(
+                'Failed to fetch generation limit info',
+                500
+            );
+        }
+    }
+
+    /**
      * Check prediction status and progress
      *
      * @param Request $request

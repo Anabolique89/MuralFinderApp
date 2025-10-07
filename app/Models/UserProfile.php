@@ -41,6 +41,10 @@ class UserProfile extends Model
         'following_count',
         'artworks_count',
         'posts_count',
+        'ai_generations_count',
+        'subscription_tier',
+        'subscription_status',
+        'subscription_expires_at',
     ];
 
     /**
@@ -57,6 +61,8 @@ class UserProfile extends Model
         'following_count' => 'integer',
         'artworks_count' => 'integer',
         'posts_count' => 'integer',
+        'ai_generations_count' => 'integer',
+        'subscription_expires_at' => 'datetime',
     ];
 
     /**
