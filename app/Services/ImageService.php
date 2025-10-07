@@ -107,6 +107,22 @@ class ImageService
     }
 
     /**
+     * Delete post images
+     */
+    public function deletePostImages($post): void
+    {
+        if ($post->featured_image) {
+            $this->deleteImageSizes($post->featured_image);
+        }
+
+        if ($post->images) {
+            foreach ($post->images as $imagePath) {
+                $this->deleteImageSizes($imagePath);
+            }
+        }
+    }
+
+    /**
      * Delete image and all its sizes
      */
     protected function deleteImageSizes(string $imagePath): void
