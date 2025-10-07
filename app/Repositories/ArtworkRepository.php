@@ -21,7 +21,17 @@ class ArtworkRepository extends BaseRepository
     public function findById(int $id): ?Artwork
     {
         return $this->model
-            ->with(['user.profile', 'category', 'wall'])
+            ->with([
+                'user.profile',
+                'category',
+                'wall',
+                'comments' => function($query) {
+                    $query->with('user.profile')
+                          ->whereNull('parent_id')
+                          ->latest()
+                          ->limit(10);
+                }
+            ])
             ->find($id);
     }
 

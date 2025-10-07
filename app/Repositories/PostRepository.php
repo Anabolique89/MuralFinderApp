@@ -16,6 +16,25 @@ class PostRepository extends BaseRepository
     }
 
     /**
+     * Find post by ID with relationships
+     */
+    public function findById(int $id): ?Post
+    {
+        return $this->model
+            ->with([
+                'user.profile',
+                'category',
+                'comments' => function($query) {
+                    $query->with('user.profile')
+                          ->whereNull('parent_id')
+                          ->latest()
+                          ->limit(10);
+                }
+            ])
+            ->find($id);
+    }
+
+    /**
      * Get all posts for admin (including drafts)
      */
     public function getAllForAdmin(array $filters = [], int $perPage = 15): LengthAwarePaginator

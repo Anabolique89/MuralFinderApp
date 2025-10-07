@@ -184,13 +184,9 @@ class PostService
     {
         PostView::recordView($post, $user, $context);
 
-        // Update view count if it's a unique view
-        if (!$user || !PostView::where('post_id', $post->id)
-            ->where('user_id', $user->id)
-            ->where('is_unique_view', true)
-            ->exists()) {
-            $post->increment('views_count');
-        }
+        // Always increment view count for simplicity
+        // In production, you might want to deduplicate by IP or session
+        $post->increment('views_count');
     }
 
     /**
@@ -308,12 +304,11 @@ class PostService
             return null;
         }
 
-        if ($viewer) {
-            $this->recordView($post, $viewer, [
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
-        }
+        // Record view for both authenticated and unauthenticated users
+        $this->recordView($post, $viewer, [
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
 
         return $post;
     }
